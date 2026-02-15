@@ -172,6 +172,7 @@ export default async function handler(req, res) {
       currency: 'CRC',
       description: `DeepClean x${quantity} – Orden #${orderId}`,
       redirect: `${appUrl}/success.html`,
+      notification_url: `${appUrl}/api/tilopay/webhook`,
       hashVersion: 'V2',
       billToFirstName: firstName,
       billToLastName: lastName,
