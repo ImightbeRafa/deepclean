@@ -92,7 +92,7 @@ async function sendCustomerEmail(order) {
       'Authorization': `Bearer ${resendApiKey}`
     },
     body: JSON.stringify({
-      from: 'DeepClean <orders@send.deepclean.shopping>',
+      from: 'DeepClean <orders@deepclean.shopping>',
       to: order.email,
       subject: `Confirmación de Pedido ${order.orderId} - DeepClean`,
       html: customerEmailHtml
@@ -193,7 +193,7 @@ async function sendAdminEmail(order) {
       'Authorization': `Bearer ${resendApiKey}`
     },
     body: JSON.stringify({
-      from: 'DeepClean <orders@send.deepclean.shopping>',
+      from: 'DeepClean <orders@deepclean.shopping>',
       to: notificationEmail,
       subject: `Nueva Orden: ${order.orderId} - ${order.nombre}`,
       html: adminEmailHtml
