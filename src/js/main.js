@@ -115,7 +115,7 @@ if (paymentMethodSelect && paymentInfoBox) {
       paymentInfoBox.innerHTML = `
         <div class="payment-instructions sinpe">
           <h4>📱 Instrucciones SINPE Móvil</h4>
-          <p>📱 <strong>Número:</strong> 7033-9763</p>
+          <p>📱 <strong>Número:</strong> 6201-9914</p>
           <p>👤 <strong>Nombre:</strong> Rafael Garcia</p>
           <p>⚠️ <strong>Importante:</strong></p>
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
