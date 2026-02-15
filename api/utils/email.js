@@ -213,33 +213,57 @@ async function sendAdminEmail(order) {
  * Send both customer and admin emails
  */
 export async function sendOrderEmail(order) {
-  try {
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL;
 
-    if (!resendApiKey || !notificationEmail) {
-      console.warn('⚠️ Email not configured');
-      throw new Error('Email configuration missing');
-    }
+  // Diagnostic logging
+  console.log('📧 [Email] === RESEND DIAGNOSTICS ===');
+  console.log('📧 [Email] RESEND_API_KEY set:', !!resendApiKey);
+  console.log('📧 [Email] RESEND_API_KEY starts with:', resendApiKey ? resendApiKey.substring(0, 8) + '...' : 'NOT SET');
+  console.log('📧 [Email] ORDER_NOTIFICATION_EMAIL:', notificationEmail || 'NOT SET');
+  console.log('📧 [Email] Customer email:', order.email || 'NOT PROVIDED');
+  console.log('📧 [Email] From address: orders@send.deepclean.shopping');
+  console.log('📧 [Email] Order ID:', order.orderId);
+  console.log('📧 [Email] ===========================');
 
-    // Send customer confirmation email
-    if (order.email) {
-      try {
-        await sendCustomerEmail(order);
-        console.log('✅ Customer email sent to:', order.email);
-      } catch (error) {
-        console.error('❌ Failed to send customer email:', error);
-      }
-    }
-
-    // Send admin notification email
-    await sendAdminEmail(order);
-    console.log('✅ Admin email sent to:', notificationEmail);
-
-    return { success: true };
-
-  } catch (error) {
-    console.error('❌ Email sending error:', error);
-    throw error;
+  if (!resendApiKey) {
+    console.error('❌ [Email] RESEND_API_KEY is not set in environment variables!');
+    throw new Error('RESEND_API_KEY not configured');
   }
+
+  if (!notificationEmail) {
+    console.error('❌ [Email] ORDER_NOTIFICATION_EMAIL is not set in environment variables!');
+    throw new Error('ORDER_NOTIFICATION_EMAIL not configured');
+  }
+
+  let customerEmailSent = false;
+  let adminEmailSent = false;
+
+  // Send customer confirmation email
+  if (order.email) {
+    try {
+      const customerResult = await sendCustomerEmail(order);
+      customerEmailSent = true;
+      console.log('✅ [Email] Customer email sent to:', order.email, 'Result:', JSON.stringify(customerResult));
+    } catch (error) {
+      console.error('❌ [Email] Customer email FAILED:', error.message);
+    }
+  }
+
+  // Send admin notification email
+  try {
+    const adminResult = await sendAdminEmail(order);
+    adminEmailSent = true;
+    console.log('✅ [Email] Admin email sent to:', notificationEmail, 'Result:', JSON.stringify(adminResult));
+  } catch (error) {
+    console.error('❌ [Email] Admin email FAILED:', error.message);
+  }
+
+  console.log('📧 [Email] Summary — Customer:', customerEmailSent ? 'SENT' : 'FAILED', '| Admin:', adminEmailSent ? 'SENT' : 'FAILED');
+
+  if (!customerEmailSent && !adminEmailSent) {
+    throw new Error('Both emails failed to send');
+  }
+
+  return { success: true, customerEmailSent, adminEmailSent };
 }
