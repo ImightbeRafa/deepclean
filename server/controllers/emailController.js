@@ -41,8 +41,9 @@ export async function sendOrderEmail(order) {
 
         <div class="info-section">
           <h3>🛍️ Detalles del Producto:</h3>
-          <p class="info-item"><span class="label">Producto:</span> OtoView Otoscopio WiFi HD 1080p</p>
+          <p class="info-item"><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
           <p class="info-item"><span class="label">Cantidad:</span> ${order.cantidad}</p>
+          ${order.color ? `<p class="info-item"><span class="label">Color:</span> ${order.color}</p>` : ''}
           <p class="info-item"><span class="label">Precio Unitario:</span> ₡15.900</p>
           <p class="info-item"><span class="label">Envío:</span> GRATIS</p>
           <p class="info-item"><span class="label total">Total:</span> <span class="total">₡${order.total.toLocaleString('es-CR')}</span></p>
@@ -87,9 +88,9 @@ export async function sendOrderEmail(order) {
         'Authorization': `Bearer ${resendApiKey}`
       },
       body: JSON.stringify({
-        from: 'DeepClean <orders@deepclean.cr>',
+        from: 'DeepClean <orders@send.deepclean.shopping>',
         to: notificationEmail,
-        subject: `Nueva Orden: ${order.orderId} - ${order.nombre} (OtoView)`,
+        subject: `Nueva Orden: ${order.orderId} - ${order.nombre}`,
         html: emailHtml
       })
     });
@@ -124,6 +125,7 @@ export async function sendSinpeEmail(req, res) {
       distrito,
       direccion,
       cantidad,
+      color,
       comentarios
     } = req.body;
 
@@ -160,6 +162,7 @@ export async function sendSinpeEmail(req, res) {
       distrito,
       direccion,
       cantidad: quantity,
+      color: color || 'Blanco',
       total,
       comentarios,
       paymentMethod: 'SINPE',

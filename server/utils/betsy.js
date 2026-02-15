@@ -48,7 +48,7 @@ export async function sendOrderToBetsy(orderData) {
         email: orderData.email,
       },
       product: {
-        name: 'OtoView Otoscopio WiFi HD 1080p',
+        name: `DeepClean – Cámara WiFi HD 1080p (${orderData.color || 'Blanco'})`,
         quantity: parseInt(orderData.cantidad) || 1,
         unitPrice: '₡15.900',
       },

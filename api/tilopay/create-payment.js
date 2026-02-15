@@ -1,5 +1,3 @@
-import { sendOrderEmail } from '../utils/email.js';
-
 /**
  * Authenticate with Tilopay API
  */
@@ -76,6 +74,7 @@ export default async function handler(req, res) {
       distrito,
       direccion,
       cantidad,
+      color,
       comentarios
     } = req.body;
 
@@ -98,7 +97,7 @@ export default async function handler(req, res) {
     const quantity = parseInt(cantidad) || 1;
     const subtotal = pricing[quantity] || pricing[1];
 
-    // Shipping is always FREE for OtoView
+    // Shipping is always FREE for DeepClean
     const shippingCost = 0;
     const total = subtotal + shippingCost;
 
@@ -120,6 +119,7 @@ export default async function handler(req, res) {
       distrito,
       direccion,
       cantidad: quantity,
+      color: color || 'Blanco',
       subtotal,
       shippingCost,
       total,
@@ -135,7 +135,11 @@ export default async function handler(req, res) {
     // Create payment link using /processPayment endpoint
     const baseUrl = process.env.TILOPAY_BASE_URL || 'https://app.tilopay.com/api/v1';
     const apiKey = process.env.TILOPAY_API_KEY;
-    const appUrl = process.env.APP_URL || 'https://deepclean.vercel.app';
+    const appUrl = process.env.APP_URL || 'https://deepclean.shopping';
+
+    if (!apiKey) {
+      throw new Error('TILOPAY_API_KEY not configured in environment variables');
+    }
 
     // Split name into first and last name
     const nameParts = nombre.split(' ');
@@ -153,6 +157,7 @@ export default async function handler(req, res) {
       distrito,
       direccion,
       cantidad: quantity,
+      color: color || 'Blanco',
       subtotal,
       shippingCost,
       total,
@@ -165,6 +170,7 @@ export default async function handler(req, res) {
       key: apiKey,
       amount: Math.round(total),
       currency: 'CRC',
+      description: `DeepClean x${quantity} – Orden #${orderId}`,
       redirect: `${appUrl}/success.html`,
       hashVersion: 'V2',
       billToFirstName: firstName,

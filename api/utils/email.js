@@ -28,7 +28,7 @@ async function sendCustomerEmail(order) {
     <div class="container">
       <div class="header">
         <h1>🔬 DeepClean</h1>
-        <p style="color: white; margin: 5px 0 0;">OtoView – Otoscopio WiFi HD</p>
+        <p style="color: white; margin: 5px 0 0;">Limpiador de Oídos con Cámara WiFi HD</p>
       </div>
       <div class="content">
         <h2>✅ ¡Confirmación de Pedido!</h2>
@@ -37,8 +37,9 @@ async function sendCustomerEmail(order) {
 
         <div class="order-box">
           <p><span class="label">Número de Orden:</span> ${order.orderId}</p>
-          <p><span class="label">Producto:</span> OtoView Otoscopio WiFi HD 1080p</p>
+          <p><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
           <p><span class="label">Cantidad:</span> ${order.cantidad}</p>
+          ${order.color ? `<p><span class="label">Color:</span> ${order.color}</p>` : ''}
           ${order.subtotal ? `<p><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
           <p><span class="label">Envío:</span> GRATIS 🎉</p>
           <p><span class="label">Total:</span> <strong>₡${order.total.toLocaleString('es-CR')}</strong></p>
@@ -57,7 +58,7 @@ async function sendCustomerEmail(order) {
             <li>Realizá la transferencia al número <strong>7033-9763</strong></li>
             <li>⚠️ <strong>Importante:</strong> En el concepto/descripción escribí: <code>${order.orderId}</code></li>
             <li>Guardá el comprobante de pago</li>
-            <li>Enviá el comprobante por WhatsApp al <strong>6201-9914</strong></li>
+            <li>Enviá el comprobante por WhatsApp al <strong>7161-8029</strong></li>
           </ol>
         </div>
         ` : `
@@ -74,9 +75,8 @@ async function sendCustomerEmail(order) {
       </div>
       <div class="footer">
         <p>¿Tenés preguntas?</p>
-        <p>WhatsApp: <strong>6201-9914</strong></p>
-        <p>Instagram: <strong>@deepclean.cr</strong></p>
-        <p>Email: deepclean.cr@gmail.com</p>
+        <p>WhatsApp: <strong>7161-8029</strong></p>
+        <p>Instagram: <strong>@deepclean_cr</strong></p>
         <br>
         <p>© 2025 DeepClean. Todos los derechos reservados.</p>
       </div>
@@ -92,9 +92,9 @@ async function sendCustomerEmail(order) {
       'Authorization': `Bearer ${resendApiKey}`
     },
     body: JSON.stringify({
-      from: 'DeepClean <orders@deepclean.cr>',
+      from: 'DeepClean <orders@send.deepclean.shopping>',
       to: order.email,
-      subject: `Confirmación de Pedido ${order.orderId} - DeepClean OtoView`,
+      subject: `Confirmación de Pedido ${order.orderId} - DeepClean`,
       html: customerEmailHtml
     })
   });
@@ -143,9 +143,10 @@ async function sendAdminEmail(order) {
 
       <div class="info-section">
         <h3>🛍️ Detalles del Producto:</h3>
-        <p class="info-item"><span class="label">Producto:</span> OtoView Otoscopio WiFi HD 1080p</p>
-        <p class="info-item"><span class="label">Cantidad:</span> ${order.cantidad}</p>
-        <p class="info-item"><span class="label">Precio Unitario:</span> ₡15.900</p>
+        <p class="info-item"><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
+          <p class="info-item"><span class="label">Cantidad:</span> ${order.cantidad}</p>
+          ${order.color ? `<p class="info-item"><span class="label">Color:</span> ${order.color}</p>` : ''}
+          <p class="info-item"><span class="label">Precio Unitario:</span> ₡15.900</p>
         ${order.subtotal ? `<p class="info-item"><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
         <p class="info-item"><span class="label">Envío:</span> GRATIS</p>
         <p class="info-item"><span class="label total">Total:</span> <span class="total">₡${order.total.toLocaleString('es-CR')}</span></p>
@@ -190,9 +191,9 @@ async function sendAdminEmail(order) {
       'Authorization': `Bearer ${resendApiKey}`
     },
     body: JSON.stringify({
-      from: 'DeepClean <orders@deepclean.cr>',
+      from: 'DeepClean <orders@send.deepclean.shopping>',
       to: notificationEmail,
-      subject: `Nueva Orden: ${order.orderId} - ${order.nombre} (OtoView)`,
+      subject: `Nueva Orden: ${order.orderId} - ${order.nombre}`,
       html: adminEmailHtml
     })
   });

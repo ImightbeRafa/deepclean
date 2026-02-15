@@ -121,7 +121,7 @@ if (paymentMethodSelect && paymentInfoBox) {
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
             <li>Use el número de su orden en el concepto del SINPE</li>
             <li>Guarde el comprobante de pago</li>
-            <li>Envíe el comprobante por WhatsApp al 6201-9914</li>
+            <li>Envíe el comprobante por WhatsApp al 7161-8029</li>
           </ul>
         </div>
       `;

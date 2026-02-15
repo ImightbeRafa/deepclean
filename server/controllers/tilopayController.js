@@ -46,6 +46,7 @@ export async function createPaymentLink(req, res) {
       distrito,
       direccion,
       cantidad,
+      color,
       comentarios
     } = req.body;
 
@@ -87,6 +88,7 @@ export async function createPaymentLink(req, res) {
       distrito,
       direccion,
       cantidad: quantity,
+      color: color || 'Blanco',
       subtotal,
       shippingCost,
       total,
@@ -107,7 +109,7 @@ export async function createPaymentLink(req, res) {
       key: apiKey,
       amount: Math.round(total),
       currency: 'CRC',
-      description: `Orden ${orderId}: OtoView Otoscopio WiFi HD (x${quantity})`,
+      description: `Orden ${orderId}: DeepClean Cámara WiFi HD (x${quantity})`,
       order_id: orderId,
       redirect_success: `${appUrl}/success.html?orderId=${orderId}`,
       redirect_error: `${appUrl}/error.html?orderId=${orderId}`,

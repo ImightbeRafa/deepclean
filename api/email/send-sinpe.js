@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       distrito,
       direccion,
       cantidad,
+      color,
       comentarios
     } = req.body;
 
@@ -70,6 +71,7 @@ export default async function handler(req, res) {
       distrito,
       direccion,
       cantidad: quantity,
+      color: color || 'Blanco',
       subtotal,
       shippingCost,
       total,
