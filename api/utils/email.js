@@ -100,7 +100,9 @@ async function sendCustomerEmail(order) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to send customer email');
+    const errorBody = await response.text();
+    console.error('❌ [Resend] Customer email failed:', response.status, errorBody);
+    throw new Error(`Failed to send customer email: ${response.status} - ${errorBody}`);
   }
 
   return await response.json();
@@ -199,7 +201,9 @@ async function sendAdminEmail(order) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to send admin email');
+    const errorBody = await response.text();
+    console.error('❌ [Resend] Admin email failed:', response.status, errorBody);
+    throw new Error(`Failed to send admin email: ${response.status} - ${errorBody}`);
   }
 
   return await response.json();

@@ -82,22 +82,30 @@ export default async function handler(req, res) {
     };
 
     // Send email with SINPE instructions and order details
-    await sendOrderEmail(order);
-
-    console.log('✅ SINPE order email sent:', orderId);
+    let emailSent = false;
+    try {
+      await sendOrderEmail(order);
+      emailSent = true;
+      console.log('✅ SINPE order email sent:', orderId);
+    } catch (emailError) {
+      console.error('❌ Failed to send SINPE email:', emailError.message);
+    }
 
     // Send order to Betsy CRM
     try {
       await sendOrderToBetsyWithRetry(order);
       console.log('✅ SINPE order synced to Betsy CRM');
-    } catch (error) {
-      console.error('❌ Failed to sync SINPE order to Betsy CRM:', error);
+    } catch (betsyError) {
+      console.error('❌ Failed to sync SINPE order to Betsy CRM:', betsyError.message);
     }
 
     return res.json({
       success: true,
       orderId,
-      message: 'Order received. Please check your email for SINPE payment instructions.'
+      emailSent,
+      message: emailSent
+        ? 'Order received. Please check your email for SINPE payment instructions.'
+        : 'Order received. Email could not be sent — please contact us via WhatsApp for payment instructions.'
     });
 
   } catch (error) {

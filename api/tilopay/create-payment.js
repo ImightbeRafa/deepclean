@@ -135,11 +135,20 @@ export default async function handler(req, res) {
     // Create payment link using /processPayment endpoint
     const baseUrl = process.env.TILOPAY_BASE_URL || 'https://app.tilopay.com/api/v1';
     const apiKey = process.env.TILOPAY_API_KEY;
-    const appUrl = process.env.APP_URL || 'https://deepclean.shopping';
+    let appUrl = process.env.APP_URL || 'https://deepclean.shopping';
+
+    // Ensure APP_URL always has https:// protocol (Tilopay requires full URL)
+    if (appUrl && !appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
+      appUrl = `https://${appUrl}`;
+    }
+    // Remove trailing slash if present
+    appUrl = appUrl.replace(/\/+$/, '');
 
     if (!apiKey) {
       throw new Error('TILOPAY_API_KEY not configured in environment variables');
     }
+
+    console.log('🔗 [Tilopay] Redirect URL will be:', `${appUrl}/success.html`);
 
     // Split name into first and last name
     const nameParts = nombre.split(' ');
@@ -170,9 +179,7 @@ export default async function handler(req, res) {
       key: apiKey,
       amount: Math.round(total),
       currency: 'CRC',
-      description: `DeepClean x${quantity} – Orden #${orderId}`,
       redirect: `${appUrl}/success.html`,
-      notification_url: `${appUrl}/api/tilopay/webhook`,
       hashVersion: 'V2',
       billToFirstName: firstName,
       billToLastName: lastName,
