@@ -45,11 +45,22 @@ export async function sendOrderToBetsy(orderData) {
       paymentComment = `Pago: ${paymentMethod} - Estado: ${paymentStatus}`;
     }
 
-    // Combine user comments with payment status
+    // Build color details for comments
+    const colorValue = orderData.color || 'Blanco';
+    const quantity = parseInt(orderData.cantidad) || 1;
+    let colorComment = '';
+    if (quantity > 1 && colorValue.includes(',')) {
+      const colorList = colorValue.split(',').map(c => c.trim());
+      colorComment = 'Colores por unidad: ' + colorList.map((c, i) => `Unidad ${i + 1}: ${c}`).join(', ');
+    } else {
+      colorComment = `Color: ${colorValue}`;
+    }
+
+    // Combine user comments with payment status and color info
     const userComments = orderData.comentarios || '';
-    const fullComments = userComments
-      ? `${paymentComment}\n\nComentarios del cliente: ${userComments}`
-      : paymentComment;
+    const parts = [paymentComment, colorComment];
+    if (userComments) parts.push(`Comentarios del cliente: ${userComments}`);
+    const fullComments = parts.join('\n');
 
     // Map DeepClean order data to Betsy CRM format
     const betsyOrder = {

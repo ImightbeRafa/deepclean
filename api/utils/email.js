@@ -39,7 +39,15 @@ async function sendCustomerEmail(order) {
           <p><span class="label">Número de Orden:</span> ${order.orderId}</p>
           <p><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
           <p><span class="label">Cantidad:</span> ${order.cantidad}</p>
-          ${order.color ? `<p><span class="label">Color:</span> ${order.color}</p>` : ''}
+          ${order.color ? (() => {
+            const qty = parseInt(order.cantidad) || 1;
+            const colors = order.color.split(',').map(c => c.trim());
+            if (qty > 1 && colors.length > 1) {
+              return `<p><span class="label">Colores:</span></p>` +
+                colors.map((c, i) => `<p style="padding-left:15px;">Unidad ${i + 1}: <strong>${c}</strong></p>`).join('');
+            }
+            return `<p><span class="label">Color:</span> ${order.color}</p>`;
+          })() : ''}
           ${order.subtotal ? `<p><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
           <p><span class="label">Envío:</span> GRATIS 🎉</p>
           <p><span class="label">Total:</span> <strong>₡${order.total.toLocaleString('es-CR')}</strong></p>
@@ -147,7 +155,15 @@ async function sendAdminEmail(order) {
         <h3>🛍️ Detalles del Producto:</h3>
         <p class="info-item"><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
           <p class="info-item"><span class="label">Cantidad:</span> ${order.cantidad}</p>
-          ${order.color ? `<p class="info-item"><span class="label">Color:</span> ${order.color}</p>` : ''}
+          ${order.color ? (() => {
+            const qty = parseInt(order.cantidad) || 1;
+            const colors = order.color.split(',').map(c => c.trim());
+            if (qty > 1 && colors.length > 1) {
+              return `<p class="info-item"><span class="label">Colores:</span></p>` +
+                colors.map((c, i) => `<p class="info-item" style="padding-left:20px;">Unidad ${i + 1}: <strong>${c}</strong></p>`).join('');
+            }
+            return `<p class="info-item"><span class="label">Color:</span> ${order.color}</p>`;
+          })() : ''}
           <p class="info-item"><span class="label">Precio Unitario:</span> ₡15.900</p>
         ${order.subtotal ? `<p class="info-item"><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
         <p class="info-item"><span class="label">Envío:</span> GRATIS</p>

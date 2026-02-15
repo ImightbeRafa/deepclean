@@ -96,10 +96,73 @@ function updateTotal() {
   }
 }
 
+// Dynamic color selector based on quantity
+const colorContainer = document.getElementById('color-selector-container');
+
+function updateColorSelectors() {
+  if (!colorContainer || !quantitySelect) return;
+
+  const quantity = parseInt(quantitySelect.value) || 1;
+
+  if (quantity === 1) {
+    // Single unit: simple radio buttons
+    colorContainer.innerHTML = `
+      <div class="color-selector">
+        <label class="color-option">
+          <input type="radio" name="color_1" value="Blanco" checked>
+          <span class="color-swatch color-white"></span>
+          <span>Blanco</span>
+        </label>
+        <label class="color-option">
+          <input type="radio" name="color_1" value="Negro">
+          <span class="color-swatch color-black"></span>
+          <span>Negro</span>
+        </label>
+      </div>`;
+  } else {
+    // Multiple units: one color picker per unit
+    let html = '';
+    for (let i = 1; i <= quantity; i++) {
+      html += `
+      <div class="color-unit-row">
+        <span class="color-unit-label">Unidad ${i}:</span>
+        <div class="color-selector">
+          <label class="color-option color-option-sm">
+            <input type="radio" name="color_${i}" value="Blanco" checked>
+            <span class="color-swatch color-white"></span>
+            <span>Blanco</span>
+          </label>
+          <label class="color-option color-option-sm">
+            <input type="radio" name="color_${i}" value="Negro">
+            <span class="color-swatch color-black"></span>
+            <span>Negro</span>
+          </label>
+        </div>
+      </div>`;
+    }
+    colorContainer.innerHTML = html;
+  }
+}
+
+// Collect all color selections into a single string
+function getColorSelections() {
+  const quantity = parseInt(quantitySelect?.value) || 1;
+  const colors = [];
+  for (let i = 1; i <= quantity; i++) {
+    const selected = document.querySelector(`input[name="color_${i}"]:checked`);
+    colors.push(selected ? selected.value : 'Blanco');
+  }
+  return colors;
+}
+
 if (quantitySelect) {
-  quantitySelect.addEventListener('change', updateTotal);
-  // Initialize pricing on page load
+  quantitySelect.addEventListener('change', () => {
+    updateTotal();
+    updateColorSelectors();
+  });
+  // Initialize on page load
   updateTotal();
+  updateColorSelectors();
 }
 
 // Payment method change handler
@@ -150,6 +213,10 @@ if (orderForm) {
     // Get form data
     const formData = new FormData(orderForm);
     const data = Object.fromEntries(formData);
+
+    // Collect per-unit color selections
+    const colors = getColorSelections();
+    data.color = colors.join(', ');
 
     const paymentMethod = data['metodo-pago'];
 
