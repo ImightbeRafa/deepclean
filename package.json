@@ -1,0 +1,25 @@
+{
+  "name": "deepclean",
+  "version": "1.0.0",
+  "description": "DeepClean - Tienda OtoView Otoscopio Inalámbrico con Cámara WiFi HD | Costa Rica",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "ecommerce",
+    "deepclean",
+    "otoview",
+    "otoscopio",
+    "wifi-camera"
+  ],
+  "author": "DeepClean",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "terser": "^5.44.1",
+    "vite": "^5.0.0"
+  }
+}

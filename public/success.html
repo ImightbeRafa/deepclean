@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago Exitoso - DeepClean OtoView</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .success-container {
+      background: white;
+      border-radius: 20px;
+      padding: 50px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    .success-icon svg {
+      width: 50px;
+      height: 50px;
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+
+    h1 {
+      color: #1f2937;
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .order-id {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 30px 0;
+    }
+
+    .order-id label {
+      display: block;
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .order-id strong {
+      color: #1f2937;
+      font-size: 20px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .contact-info {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .contact-info p {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+
+    <h1>¡Pago Exitoso!</h1>
+    <p>Tu pago ha sido procesado correctamente y tu orden de OtoView está confirmada.</p>
+
+    <div class="order-id">
+      <label>Número de Orden</label>
+      <strong id="order-number">Cargando...</strong>
+    </div>
+
+    <p>Recibirás un correo electrónico con los detalles de tu pedido. Te contactaremos pronto para coordinar el envío.</p>
+
+    <a href="/" class="btn">Volver al Inicio</a>
+
+    <div class="contact-info">
+      <p>¿Tenés preguntas?</p>
+      <p>WhatsApp: <strong>6201-9914</strong></p>
+      <p>Instagram: <strong>@deepclean.cr</strong></p>
+    </div>
+  </div>
+
+  <script>
+    // Immediately execute payment verification
+    (function() {
+      // Get parameters from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('orderId') || urlParams.get('order') || urlParams.get('orderNumber');
+      const transactionId = urlParams.get('tilopay-transaction') || urlParams.get('tpt') || urlParams.get('transactionId');
+      const code = urlParams.get('code');
+      const returnData = urlParams.get('returnData');
+      const description = urlParams.get('description') || urlParams.get('mensaje');
+
+      console.log('🔍 [Success Page] URL Parameters:', {
+        orderId,
+        transactionId,
+        code,
+        description,
+        hasReturnData: !!returnData,
+        fullUrl: window.location.href
+      });
+
+      // Check if payment was actually successful
+      const isPaymentSuccessful = code === '1' || code === 1 || String(code) === '1';
+      const isRejected = code !== null && code !== undefined && code !== '' && !isPaymentSuccessful;
+
+      console.log('🔍 [Success Page] Payment status check:', {
+        code: code,
+        codeType: typeof code,
+        isPaymentSuccessful,
+        isRejected
+      });
+
+      if (isRejected) {
+        console.error('❌ [Success Page] Payment REJECTED. Code:', code, 'Description:', description);
+        const errorParams = new URLSearchParams({
+          orderId: orderId || '',
+          code: code || '',
+          description: description || 'Pago rechazado'
+        });
+        window.location.replace('/error.html?' + errorParams.toString());
+        return;
+      }
+
+      if (code === null || code === undefined || code === '') {
+        console.warn('⚠️ [Success Page] No payment code received');
+        document.getElementById('order-number').textContent = orderId || 'Verificando...';
+        return;
+      }
+
+      // Payment is successful
+      console.log('✅ [Success Page] Payment APPROVED. Code:', code);
+
+      if (orderId) {
+        document.getElementById('order-number').textContent = orderId;
+      } else {
+        document.getElementById('order-number').textContent = 'No disponible';
+      }
+
+      // Confirm payment, send emails, and sync to Betsy CRM
+      if (returnData) {
+        console.log('📧 [Success Page] Confirming payment and processing order...');
+        fetch('/api/tilopay/confirm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            orderId: orderId,
+            transactionId: transactionId,
+            code: code,
+            returnData: returnData
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('✅ [Success Page] Order processed:', data);
+          if (data.success) {
+            console.log('📧 [Success Page] Emails sent and order synced to CRM!');
+          } else {
+            console.error('❌ [Success Page] Order processing failed:', data);
+          }
+        })
+        .catch(error => {
+          console.error('❌ [Success Page] Error processing order:', error);
+        });
+      } else {
+        console.warn('⚠️ [Success Page] Missing returnData parameter');
+      }
+    })();
+  </script>
+</body>
+</html>

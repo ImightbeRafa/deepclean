@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error en el Pago - DeepClean OtoView</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .error-container {
+      background: white;
+      border-radius: 20px;
+      padding: 50px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+    }
+
+    .error-icon svg {
+      width: 50px;
+      height: 50px;
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    h1 {
+      color: #1f2937;
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 500;
+      margin: 10px;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .contact-info {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .contact-info p {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    #error-details {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    #error-details p {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </div>
+
+    <h1>Error en el Pago</h1>
+    <p>Lo sentimos, no pudimos procesar tu pago. Esto puede deberse a:</p>
+    <ul style="text-align: left; margin: 0 0 20px 30px; color: #6b7280;">
+      <li>Fondos insuficientes</li>
+      <li>Datos de tarjeta incorrectos</li>
+      <li>Cancelación del pago</li>
+      <li>Problema técnico temporal</li>
+    </ul>
+
+    <div id="error-details">
+      <p>Código de error: <strong id="error-code"></strong></p>
+      <p id="error-message-row" style="display:none;">Motivo: <strong id="error-message"></strong></p>
+    </div>
+
+    <p>No te preocupes, no se realizó ningún cargo.</p>
+
+    <a href="/#pedido" class="btn">Intentar de Nuevo</a>
+    <a href="/" class="btn btn-secondary">Volver al Inicio</a>
+
+    <div class="contact-info">
+      <p>¿Necesitás ayuda?</p>
+      <p>Contáctanos por WhatsApp: <strong>6201-9914</strong></p>
+      <p>Instagram: <strong>@deepclean.cr</strong></p>
+    </div>
+  </div>
+
+  <script>
+    // Get error parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    const code = urlParams.get('code');
+    const description = urlParams.get('description');
+
+    console.log('❌ [Error Page] Payment failed:', { orderId, code, description });
+
+    // Show error details if available
+    if (code) {
+      document.getElementById('error-details').style.display = 'block';
+      document.getElementById('error-code').textContent = code;
+
+      if (description) {
+        document.getElementById('error-message-row').style.display = 'block';
+        document.getElementById('error-message').textContent = decodeURIComponent(description);
+      }
+    }
+
+    // Map common Tilopay error codes
+    const errorMessages = {
+      '2': 'Transacción rechazada por el banco',
+      '3': 'Tarjeta inválida o bloqueada',
+      '4': 'Fondos insuficientes',
+      '5': 'Tarjeta expirada',
+      '6': 'Error de autenticación 3D Secure',
+      '7': 'Transacción cancelada por el usuario',
+      '100': 'Error de procesamiento'
+    };
+
+    if (code && errorMessages[code]) {
+      document.getElementById('error-description').textContent = errorMessages[code];
+    }
+  </script>
+</body>
+</html>
