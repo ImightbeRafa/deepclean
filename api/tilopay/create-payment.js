@@ -104,29 +104,6 @@ export default async function handler(req, res) {
     // Generate simple order ID (6-digit number)
     const orderId = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Store order data in global object
-    if (!global.pendingOrders) {
-      global.pendingOrders = {};
-    }
-
-    global.pendingOrders[orderId] = {
-      orderId,
-      nombre,
-      telefono,
-      email,
-      provincia,
-      canton,
-      distrito,
-      direccion,
-      cantidad: quantity,
-      color: color || 'Blanco',
-      subtotal,
-      shippingCost,
-      total,
-      comentarios,
-      createdAt: new Date().toISOString()
-    };
-
     // Authenticate with Tilopay
     console.log('🔑 [Tilopay] Authenticating...');
     const accessToken = await authenticateTilopay();
@@ -186,7 +163,10 @@ export default async function handler(req, res) {
       billToAddress: direccion,
       billToAddress2: `${distrito}, ${canton}`,
       billToCity: canton,
-      billToState: 'CR-' + (provincia === 'San José' ? 'SJ' : 'OT'),
+      billToState: 'CR-' + ({
+        'San José': 'SJ', 'Alajuela': 'A', 'Cartago': 'C',
+        'Heredia': 'H', 'Guanacaste': 'G', 'Puntarenas': 'P', 'Limón': 'L'
+      }[provincia] || 'SJ'),
       billToZipPostCode: '10101',
       billToCountry: 'CR',
       billToTelephone: telefono,
@@ -242,8 +222,7 @@ export default async function handler(req, res) {
     console.error('❌ [Tilopay] Error stack:', error.stack);
     return res.status(500).json({
       error: 'Failed to create payment',
-      message: error.message,
-      details: error.toString()
+      message: 'Hubo un error al procesar tu pago. Por favor intentá de nuevo.'
     });
   }
 }

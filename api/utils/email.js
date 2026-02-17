@@ -1,4 +1,16 @@
 /**
+ * Escape HTML special characters to prevent XSS in email templates
+ */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
  * Send customer confirmation email
  */
 async function sendCustomerEmail(order) {
@@ -32,21 +44,21 @@ async function sendCustomerEmail(order) {
       </div>
       <div class="content">
         <h2>✅ ¡Confirmación de Pedido!</h2>
-        <p>Hola <strong>${order.nombre}</strong>,</p>
+        <p>Hola <strong>${esc(order.nombre)}</strong>,</p>
         <p>Gracias por tu pedido. Aquí están los detalles:</p>
 
         <div class="order-box">
-          <p><span class="label">Número de Orden:</span> ${order.orderId}</p>
+          <p><span class="label">Número de Orden:</span> ${esc(order.orderId)}</p>
           <p><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
-          <p><span class="label">Cantidad:</span> ${order.cantidad}</p>
+          <p><span class="label">Cantidad:</span> ${esc(order.cantidad)}</p>
           ${order.color ? (() => {
             const qty = parseInt(order.cantidad) || 1;
             const colors = order.color.split(',').map(c => c.trim());
             if (qty > 1 && colors.length > 1) {
               return `<p><span class="label">Colores:</span></p>` +
-                colors.map((c, i) => `<p style="padding-left:15px;">Unidad ${i + 1}: <strong>${c}</strong></p>`).join('');
+                colors.map((c, i) => `<p style="padding-left:15px;">Unidad ${i + 1}: <strong>${esc(c)}</strong></p>`).join('');
             }
-            return `<p><span class="label">Color:</span> ${order.color}</p>`;
+            return `<p><span class="label">Color:</span> ${esc(order.color)}</p>`;
           })() : ''}
           ${order.subtotal ? `<p><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
           <p><span class="label">Envío:</span> GRATIS 🎉</p>
@@ -64,7 +76,7 @@ async function sendCustomerEmail(order) {
           <ol>
             <li>Abrí la aplicación SINPE Móvil de tu banco</li>
             <li>Realizá la transferencia al número <strong>6201-9914</strong></li>
-            <li>⚠️ <strong>Importante:</strong> En el concepto/descripción escribí: <code>${order.orderId}</code></li>
+            <li>⚠️ <strong>Importante:</strong> En el concepto/descripción escribí: <code>${esc(order.orderId)}</code></li>
             <li>Guardá el comprobante de pago</li>
             <li>Enviá el comprobante por WhatsApp al <strong>7161-8029</strong></li>
           </ol>
@@ -75,8 +87,8 @@ async function sendCustomerEmail(order) {
 
         <div class="order-box">
           <p>📍 <strong>Dirección de Envío:</strong></p>
-          <p>${order.direccion}</p>
-          <p>${order.distrito}, ${order.canton}, ${order.provincia}</p>
+          <p>${esc(order.direccion)}</p>
+          <p>${esc(order.distrito)}, ${esc(order.canton)}, ${esc(order.provincia)}</p>
         </div>
 
         <p style="text-align: center;">Te contactaremos pronto para coordinar la entrega 🚛</p>
@@ -86,7 +98,7 @@ async function sendCustomerEmail(order) {
         <p>WhatsApp: <strong>7161-8029</strong></p>
         <p>Instagram: <strong>@deepclean_cr</strong></p>
         <br>
-        <p>© 2025 DeepClean. Todos los derechos reservados.</p>
+        <p>© 2026 DeepClean. Todos los derechos reservados.</p>
       </div>
     </div>
   </body>
@@ -142,27 +154,27 @@ async function sendAdminEmail(order) {
   </head>
   <body>
     <div class="container">
-      <h2>🎉 Nueva Orden Recibida - ${order.orderId}</h2>
+      <h2>🎉 Nueva Orden Recibida - ${esc(order.orderId)}</h2>
 
       <div class="info-section">
         <h3>📋 Información del Cliente:</h3>
-        <p class="info-item"><span class="label">Nombre:</span> ${order.nombre}</p>
-        <p class="info-item"><span class="label">Teléfono:</span> ${order.telefono}</p>
-        <p class="info-item"><span class="label">Email:</span> ${order.email}</p>
+        <p class="info-item"><span class="label">Nombre:</span> ${esc(order.nombre)}</p>
+        <p class="info-item"><span class="label">Teléfono:</span> ${esc(order.telefono)}</p>
+        <p class="info-item"><span class="label">Email:</span> ${esc(order.email)}</p>
       </div>
 
       <div class="info-section">
         <h3>🛍️ Detalles del Producto:</h3>
         <p class="info-item"><span class="label">Producto:</span> DeepClean – Cámara WiFi HD 1080p</p>
-          <p class="info-item"><span class="label">Cantidad:</span> ${order.cantidad}</p>
+          <p class="info-item"><span class="label">Cantidad:</span> ${esc(order.cantidad)}</p>
           ${order.color ? (() => {
             const qty = parseInt(order.cantidad) || 1;
             const colors = order.color.split(',').map(c => c.trim());
             if (qty > 1 && colors.length > 1) {
               return `<p class="info-item"><span class="label">Colores:</span></p>` +
-                colors.map((c, i) => `<p class="info-item" style="padding-left:20px;">Unidad ${i + 1}: <strong>${c}</strong></p>`).join('');
+                colors.map((c, i) => `<p class="info-item" style="padding-left:20px;">Unidad ${i + 1}: <strong>${esc(c)}</strong></p>`).join('');
             }
-            return `<p class="info-item"><span class="label">Color:</span> ${order.color}</p>`;
+            return `<p class="info-item"><span class="label">Color:</span> ${esc(order.color)}</p>`;
           })() : ''}
           <p class="info-item"><span class="label">Precio Unitario:</span> ₡15.900</p>
         ${order.subtotal ? `<p class="info-item"><span class="label">Subtotal:</span> ₡${order.subtotal.toLocaleString('es-CR')}</p>` : ''}
@@ -172,16 +184,16 @@ async function sendAdminEmail(order) {
 
       <div class="info-section">
         <h3>📍 Dirección de Envío:</h3>
-        <p class="info-item"><span class="label">Provincia:</span> ${order.provincia}</p>
-        <p class="info-item"><span class="label">Cantón:</span> ${order.canton}</p>
-        <p class="info-item"><span class="label">Distrito:</span> ${order.distrito}</p>
-        <p class="info-item"><span class="label">Dirección Completa:</span> ${order.direccion}</p>
+        <p class="info-item"><span class="label">Provincia:</span> ${esc(order.provincia)}</p>
+        <p class="info-item"><span class="label">Cantón:</span> ${esc(order.canton)}</p>
+        <p class="info-item"><span class="label">Distrito:</span> ${esc(order.distrito)}</p>
+        <p class="info-item"><span class="label">Dirección Completa:</span> ${esc(order.direccion)}</p>
       </div>
 
       ${order.comentarios ? `
       <div class="info-section">
         <h3>💬 Comentarios del Cliente:</h3>
-        <p>${order.comentarios}</p>
+        <p>${esc(order.comentarios)}</p>
       </div>
       ` : ''}
 
@@ -238,7 +250,7 @@ export async function sendOrderEmail(order) {
   console.log('📧 [Email] RESEND_API_KEY starts with:', resendApiKey ? resendApiKey.substring(0, 8) + '...' : 'NOT SET');
   console.log('📧 [Email] ORDER_NOTIFICATION_EMAIL:', notificationEmail || 'NOT SET');
   console.log('📧 [Email] Customer email:', order.email || 'NOT PROVIDED');
-  console.log('📧 [Email] From address: orders@send.deepclean.shopping');
+  console.log('📧 [Email] From address: orders@deepclean.shopping');
   console.log('📧 [Email] Order ID:', order.orderId);
   console.log('📧 [Email] ===========================');
 

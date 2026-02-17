@@ -88,7 +88,7 @@ export async function sendOrderEmail(order) {
         'Authorization': `Bearer ${resendApiKey}`
       },
       body: JSON.stringify({
-        from: 'DeepClean <orders@send.deepclean.shopping>',
+        from: 'DeepClean <orders@deepclean.shopping>',
         to: notificationEmail,
         subject: `Nueva Orden: ${order.orderId} - ${order.nombre}`,
         html: emailHtml

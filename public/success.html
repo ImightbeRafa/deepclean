@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pago Exitoso - DeepClean</title>
+  <title>Verificando Pago - DeepClean</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,50 +17,75 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      transition: background 0.6s ease;
     }
 
-    .success-container {
+    body.state-success {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+
+    body.state-error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .container {
       background: white;
       border-radius: 20px;
       padding: 50px;
       max-width: 500px;
+      width: 100%;
       text-align: center;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
-    .success-icon {
+    .state-icon {
       width: 80px;
       height: 80px;
-      background: #10b981;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 30px;
-      animation: scaleIn 0.5s ease-out;
     }
 
-    .success-icon svg {
+    .state-icon svg {
       width: 50px;
       height: 50px;
       stroke: white;
       stroke-width: 3;
     }
 
+    .icon-loading { background: #6b7280; }
+    .icon-success { background: #10b981; animation: scaleIn 0.5s ease-out; }
+    .icon-error { background: #ef4444; }
+
     @keyframes scaleIn {
       from { transform: scale(0); }
       to { transform: scale(1); }
     }
 
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
     h1 {
       color: #1f2937;
-      font-size: 32px;
+      font-size: 28px;
       margin-bottom: 15px;
     }
 
@@ -67,14 +93,14 @@
       color: #6b7280;
       font-size: 16px;
       line-height: 1.6;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     .order-id {
       background: #f3f4f6;
       padding: 20px;
       border-radius: 12px;
-      margin: 30px 0;
+      margin: 25px 0;
     }
 
     .order-id label {
@@ -115,69 +141,96 @@
       font-size: 14px;
       margin-bottom: 10px;
     }
+
+    /* View states */
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
 <body>
-  <div class="success-container">
-    <div class="success-icon">
-      <svg viewBox="0 0 24 24" fill="none">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
+  <div class="container">
+
+    <!-- LOADING STATE (default) -->
+    <div id="view-loading" class="view active">
+      <div class="state-icon icon-loading">
+        <div class="spinner"></div>
+      </div>
+      <h1>Verificando Pago...</h1>
+      <p>Estamos confirmando tu transacción. Por favor no cierres esta página.</p>
     </div>
 
-    <h1>¡Pago Exitoso!</h1>
-    <p>Tu pago ha sido procesado correctamente y tu orden de DeepClean está confirmada.</p>
-
-    <div class="order-id">
-      <label>Número de Orden</label>
-      <strong id="order-number">Cargando...</strong>
+    <!-- SUCCESS STATE -->
+    <div id="view-success" class="view">
+      <div class="state-icon icon-success">
+        <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h1>¡Pago Exitoso!</h1>
+      <p>Tu pago ha sido procesado correctamente y tu orden de DeepClean está confirmada.</p>
+      <div class="order-id">
+        <label>Número de Orden</label>
+        <strong id="order-number">—</strong>
+      </div>
+      <p>Recibirás un correo electrónico con los detalles de tu pedido. Te contactaremos pronto para coordinar el envío.</p>
+      <a href="/" class="btn">Volver al Inicio</a>
+      <div class="contact-info">
+        <p>¿Tenés preguntas?</p>
+        <p>WhatsApp: <strong>7161-8029</strong></p>
+        <p>Instagram: <strong>@deepclean_cr</strong></p>
+      </div>
     </div>
 
-    <p>Recibirás un correo electrónico con los detalles de tu pedido. Te contactaremos pronto para coordinar el envío.</p>
-
-    <a href="/" class="btn">Volver al Inicio</a>
-
-    <div class="contact-info">
-      <p>¿Tenés preguntas?</p>
-      <p>WhatsApp: <strong>7161-8029</strong></p>
-      <p>Instagram: <strong>@deepclean_cr</strong></p>
+    <!-- ERROR / NO PAYMENT STATE -->
+    <div id="view-error" class="view">
+      <div class="state-icon icon-error">
+        <svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </div>
+      <h1 id="error-title">Pago No Verificado</h1>
+      <p id="error-description">No pudimos confirmar un pago válido. Si creés que es un error, contactanos.</p>
+      <a href="/#pedido" class="btn">Intentar de Nuevo</a>
+      <div class="contact-info">
+        <p>¿Necesitás ayuda?</p>
+        <p>WhatsApp: <strong>7161-8029</strong></p>
+        <p>Instagram: <strong>@deepclean_cr</strong></p>
+      </div>
     </div>
+
   </div>
 
   <script>
-    // Immediately execute payment verification
     (function() {
-      // Get parameters from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const orderId = urlParams.get('orderId') || urlParams.get('order') || urlParams.get('orderNumber');
-      const transactionId = urlParams.get('tilopay-transaction') || urlParams.get('tpt') || urlParams.get('transactionId');
-      const code = urlParams.get('code');
-      const returnData = urlParams.get('returnData');
-      const description = urlParams.get('description') || urlParams.get('mensaje');
+      function showView(name) {
+        document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+        var el = document.getElementById('view-' + name);
+        if (el) el.classList.add('active');
+        document.body.className = 'state-' + name;
+        if (name === 'success') document.title = 'Pago Exitoso - DeepClean';
+        if (name === 'error') document.title = 'Error en Pago - DeepClean';
+      }
 
-      console.log('🔍 [Success Page] URL Parameters:', {
-        orderId,
-        transactionId,
-        code,
-        description,
-        hasReturnData: !!returnData,
-        fullUrl: window.location.href
-      });
+      var urlParams = new URLSearchParams(window.location.search);
+      var orderId = urlParams.get('orderId') || urlParams.get('order') || urlParams.get('orderNumber');
+      var transactionId = urlParams.get('tilopay-transaction') || urlParams.get('tpt') || urlParams.get('transactionId');
+      var code = urlParams.get('code');
+      var returnData = urlParams.get('returnData');
+      var description = urlParams.get('description') || urlParams.get('mensaje');
 
-      // Check if payment was actually successful
-      const isPaymentSuccessful = code === '1' || code === 1 || String(code) === '1';
-      const isRejected = code !== null && code !== undefined && code !== '' && !isPaymentSuccessful;
+      console.log('[Success Page] URL params:', { orderId: orderId, code: code, hasReturnData: !!returnData });
 
-      console.log('🔍 [Success Page] Payment status check:', {
-        code: code,
-        codeType: typeof code,
-        isPaymentSuccessful,
-        isRejected
-      });
+      // No code at all = no payment happened (direct nav, reload without params, etc.)
+      if (code === null || code === undefined || code === '') {
+        console.warn('[Success Page] No payment code — showing error');
+        showView('error');
+        document.getElementById('error-title').textContent = 'No se detectó un pago';
+        document.getElementById('error-description').textContent =
+          'Esta página solo funciona después de completar un pago con tarjeta. Si ya pagaste y ves este mensaje, contactanos por WhatsApp.';
+        return;
+      }
 
-      if (isRejected) {
-        console.error('❌ [Success Page] Payment REJECTED. Code:', code, 'Description:', description);
-        const errorParams = new URLSearchParams({
+      // Code present but NOT '1' = payment rejected
+      var isApproved = (code === '1' || String(code) === '1');
+      if (!isApproved) {
+        console.error('[Success Page] Payment REJECTED. Code:', code);
+        var errorParams = new URLSearchParams({
           orderId: orderId || '',
           code: code || '',
           description: description || 'Pago rechazado'
@@ -186,51 +239,62 @@
         return;
       }
 
-      if (code === null || code === undefined || code === '') {
-        console.warn('⚠️ [Success Page] No payment code received');
-        document.getElementById('order-number').textContent = orderId || 'Verificando...';
+      // Code === '1' — payment approved
+      console.log('[Success Page] Payment APPROVED. Code:', code);
+
+      // Prevent duplicate confirm calls on page refresh
+      var confirmKey = 'confirmed_' + (orderId || '') + '_' + (transactionId || '');
+      if (sessionStorage.getItem(confirmKey)) {
+        console.log('[Success Page] Already confirmed this order in this session, skipping API call');
+        document.getElementById('order-number').textContent = orderId || '—';
+        showView('success');
         return;
       }
 
-      // Payment is successful
-      console.log('✅ [Success Page] Payment APPROVED. Code:', code);
-
-      if (orderId) {
-        document.getElementById('order-number').textContent = orderId;
-      } else {
-        document.getElementById('order-number').textContent = 'No disponible';
+      // Must have returnData to process the order
+      if (!returnData) {
+        console.warn('[Success Page] Approved but no returnData — showing success without confirm');
+        document.getElementById('order-number').textContent = orderId || '—';
+        showView('success');
+        return;
       }
 
-      // Confirm payment, send emails, and sync to Betsy CRM
-      if (returnData) {
-        console.log('📧 [Success Page] Confirming payment and processing order...');
-        fetch('/api/tilopay/confirm', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            orderId: orderId,
-            transactionId: transactionId,
-            code: code,
-            returnData: returnData
-          })
+      // Call confirm endpoint
+      console.log('[Success Page] Confirming payment and processing order...');
+      fetch('/api/tilopay/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderId,
+          transactionId: transactionId,
+          code: code,
+          returnData: returnData
         })
-        .then(response => response.json())
-        .then(data => {
-          console.log('✅ [Success Page] Order processed:', data);
-          if (data.success) {
-            console.log('📧 [Success Page] Emails sent and order synced to CRM!');
-          } else {
-            console.error('❌ [Success Page] Order processing failed:', data);
-          }
-        })
-        .catch(error => {
-          console.error('❌ [Success Page] Error processing order:', error);
-        });
-      } else {
-        console.warn('⚠️ [Success Page] Missing returnData parameter');
-      }
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        console.log('[Success Page] Confirm response:', data);
+        if (data.success) {
+          sessionStorage.setItem(confirmKey, '1');
+          document.getElementById('order-number').textContent = orderId || '—';
+          showView('success');
+        } else if (data.alreadyProcessed) {
+          sessionStorage.setItem(confirmKey, '1');
+          document.getElementById('order-number').textContent = orderId || '—';
+          showView('success');
+        } else {
+          console.error('[Success Page] Confirm failed:', data);
+          showView('error');
+          document.getElementById('error-description').textContent =
+            'Hubo un problema al confirmar tu pago. Por favor contactanos por WhatsApp con tu número de orden: ' + (orderId || 'N/A');
+        }
+      })
+      .catch(function(error) {
+        console.error('[Success Page] Confirm error:', error);
+        showView('error');
+        document.getElementById('error-description').textContent =
+          'Error de conexión al confirmar el pago. Por favor contactanos por WhatsApp.';
+      });
     })();
   </script>
 </body>

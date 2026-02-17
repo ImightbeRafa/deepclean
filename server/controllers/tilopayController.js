@@ -169,7 +169,14 @@ function verifyWebhookSignature(req) {
   }
 
   if (providedHash && expectedSecret) {
-    return true;
+    try {
+      const crypto = await import('crypto');
+      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      const computedHash = crypto.createHmac('sha256', expectedSecret).update(rawBody).digest('hex');
+      return crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(computedHash));
+    } catch (e) {
+      return false;
+    }
   }
 
   return false;

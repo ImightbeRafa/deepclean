@@ -2,11 +2,18 @@ import { sendOrderEmail } from '../utils/email.js';
 import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
 
 /**
- * Confirm payment and send emails, then sync order to Betsy CRM
- * Called from success page after Tilopay redirect
+ * In-memory set of already-processed order IDs.
+ * Prevents duplicate emails/CRM submissions when the success page is
+ * refreshed or the browser retries the fetch. Not persistent across
+ * cold starts, but covers the most common duplicate scenario.
+ */
+const processedOrders = new Set();
+
+/**
+ * Confirm payment and send emails, then sync order to Betsy CRM.
+ * Called from success page after Tilopay redirect.
  */
 export default async function handler(req, res) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -30,33 +37,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Order ID required' });
     }
 
+    if (!returnData) {
+      return res.status(400).json({ error: 'Missing order data (returnData)' });
+    }
+
     console.log(`📋 [Confirm] Order: ${orderId}, Transaction: ${transactionId}, Code: ${code}`);
 
-    // Decode order data from returnData parameter
-    let order;
-    if (returnData) {
-      try {
-        const decodedData = Buffer.from(returnData, 'base64').toString('utf-8');
-        order = JSON.parse(decodedData);
-        console.log(`✅ [Confirm] Order data decoded from returnData`);
-      } catch (decodeError) {
-        console.error(`❌ [Confirm] Failed to decode returnData:`, decodeError);
-        return res.status(400).json({
-          error: 'Invalid order data',
-          message: 'Could not decode order information'
-        });
-      }
-    } else {
-      console.error(`❌ [Confirm] No returnData provided`);
-      return res.status(400).json({
-        error: 'Missing order data',
-        message: 'Order information not found in request'
+    // Server-side deduplication: if we already processed this order, return early
+    const dedupeKey = `${orderId}_${transactionId || ''}`;
+    if (processedOrders.has(dedupeKey)) {
+      console.log(`⚠️ [Confirm] Order ${orderId} already processed — skipping duplicate`);
+      return res.json({
+        success: true,
+        alreadyProcessed: true,
+        message: 'Order already processed',
+        orderId
       });
     }
 
-    // code=1 means approved, anything else means declined/failed
-    const isPaymentApproved = code === '1' || code === 1;
-
+    // Verify payment code BEFORE doing anything else
+    const isPaymentApproved = code === '1' || code === 1 || String(code) === '1';
     if (!isPaymentApproved) {
       console.log(`❌ [Confirm] Payment declined for order ${orderId}, code: ${code}`);
       return res.status(400).json({
@@ -67,7 +67,33 @@ export default async function handler(req, res) {
       });
     }
 
-    // Payment is approved - process it
+    // Decode order data from returnData
+    let order;
+    try {
+      const decodedData = Buffer.from(returnData, 'base64').toString('utf-8');
+      order = JSON.parse(decodedData);
+      console.log(`✅ [Confirm] Order data decoded from returnData`);
+    } catch (decodeError) {
+      console.error(`❌ [Confirm] Failed to decode returnData:`, decodeError);
+      return res.status(400).json({
+        error: 'Invalid order data',
+        message: 'Could not decode order information'
+      });
+    }
+
+    // Validate decoded order has essential fields
+    if (!order.nombre || !order.email || !order.total) {
+      console.error(`❌ [Confirm] Decoded order missing essential fields:`, Object.keys(order));
+      return res.status(400).json({
+        error: 'Incomplete order data',
+        message: 'Order is missing required fields'
+      });
+    }
+
+    // Mark as processed IMMEDIATELY to prevent race conditions
+    processedOrders.add(dedupeKey);
+
+    // Payment is approved — enrich the order object
     order.paymentStatus = 'completed';
     order.paymentId = transactionId;
     order.paymentMethod = 'Tilopay';
@@ -75,7 +101,7 @@ export default async function handler(req, res) {
 
     console.log(`✅ [Confirm] Order ${orderId} confirmed as paid`);
 
-    // Send emails
+    // Send emails (non-blocking — don't let failure break the response)
     try {
       await sendOrderEmail(order);
       console.log(`📧 [Confirm] Emails sent for order ${orderId}`);
