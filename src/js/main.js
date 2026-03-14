@@ -3,6 +3,104 @@ import '../styles/main.css';
 
 // Constants
 const API_BASE_URL = '/api'; // Vercel serverless functions
+const META_PIXEL_ID = '1287887989919259';
+
+// =============================================
+// Meta Pixel — Browser-side tracking helpers
+// =============================================
+
+function metaTrack(eventName, params, options) {
+  try {
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      if (params && options) { window.fbq('track', eventName, params, options); }
+      else if (params) { window.fbq('track', eventName, params); }
+      else { window.fbq('track', eventName); }
+    }
+  } catch { /* no-op — never break the site if Pixel fails */ }
+}
+
+function getOrCreateExternalId() {
+  try {
+    let id = localStorage.getItem('dc_external_id');
+    if (!id) { id = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('dc_external_id', id); }
+    return id;
+  } catch { return ''; }
+}
+
+function captureFbclid() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+    if (fbclid) {
+      localStorage.setItem('dc_fbclid', fbclid);
+      const fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      document.cookie = '_fbc=' + fbc + ';max-age=7776000;path=/;SameSite=Lax';
+    }
+  } catch { /* no-op */ }
+}
+
+function getMetaCookies() {
+  const cookies = { _fbp: '', _fbc: '' };
+  try {
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith('_fbp=')) cookies._fbp = c.substring(5);
+      if (c.startsWith('_fbc=')) cookies._fbc = c.substring(5);
+    });
+  } catch { /* no-op */ }
+  return cookies;
+}
+
+function setupAdvancedMatching() {
+  const fields = [
+    { id: 'email', key: 'em' },
+    { id: 'telefono', key: 'ph' },
+    { id: 'nombre', key: 'fn' }
+  ];
+  fields.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('blur', () => {
+      const val = el.value.trim();
+      if (!val) return;
+      try {
+        const userData = { external_id: getOrCreateExternalId() };
+        if (key === 'em') userData.em = val.toLowerCase();
+        if (key === 'ph') { let p = val.replace(/\D/g, ''); if (!p.startsWith('506')) p = '506' + p; userData.ph = p; }
+        if (key === 'fn') {
+          const parts = val.split(/\s+/);
+          userData.fn = (parts[0] || '').toLowerCase();
+          if (parts.length > 1) userData.ln = parts.slice(1).join(' ').toLowerCase();
+        }
+        window.fbq('init', META_PIXEL_ID, userData);
+      } catch { /* no-op */ }
+    });
+  });
+}
+
+function setupViewContentObserver() {
+  const section = document.getElementById('producto');
+  if (!section || typeof IntersectionObserver === 'undefined') return;
+  let fired = false;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting || fired) return;
+      fired = true;
+      metaTrack('ViewContent', {
+        content_ids: ['deepclean'],
+        content_name: 'DeepClean - Limpiador de Oídos WiFi HD',
+        content_type: 'product',
+        value: 15900,
+        currency: 'CRC'
+      });
+      observer.disconnect();
+    });
+  }, { threshold: 0.55 });
+  observer.observe(section);
+}
+
+// Capture fbclid on page load
+captureFbclid();
 
 // Pricing structure - MUST match backend pricing
 const pricing = {
@@ -155,10 +253,24 @@ function getColorSelections() {
   return colors;
 }
 
+let addToCartFired = false;
 if (quantitySelect) {
   quantitySelect.addEventListener('change', () => {
     updateTotal();
     updateColorSelectors();
+    // Fire AddToCart on first quantity interaction
+    if (!addToCartFired) {
+      addToCartFired = true;
+      const qty = parseInt(quantitySelect.value) || 1;
+      const total = pricing[qty] || pricing[1];
+      metaTrack('AddToCart', {
+        content_ids: ['deepclean'],
+        content_name: 'DeepClean - Limpiador de Oídos WiFi HD',
+        content_type: 'product',
+        value: total,
+        currency: 'CRC'
+      });
+    }
   });
   // Initialize on page load
   updateTotal();
@@ -230,6 +342,16 @@ if (orderForm) {
 
     try {
       if (paymentMethod === 'SINPE') {
+        // InitiateCheckout for SINPE — no server mirror, fire immediately
+        const qty = parseInt(data.cantidad) || 1;
+        const total = pricing[qty] || pricing[1];
+        metaTrack('InitiateCheckout', {
+          content_ids: ['deepclean'],
+          content_type: 'product',
+          num_items: qty,
+          value: total,
+          currency: 'CRC'
+        });
         await handleSinpePayment(data);
       } else if (paymentMethod === 'Tarjeta') {
         await handleTilopayPayment(data);
@@ -245,12 +367,21 @@ if (orderForm) {
 // Handle SINPE payment
 async function handleSinpePayment(data) {
   try {
+    // Forward Meta cookies for CAPI
+    const metaCookies = getMetaCookies();
+    const payload = {
+      ...data,
+      _fbp: metaCookies._fbp,
+      _fbc: metaCookies._fbc,
+      external_id: getOrCreateExternalId()
+    };
+
     const response = await fetch(`${API_BASE_URL}/email/send-sinpe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -266,6 +397,14 @@ async function handleSinpePayment(data) {
     if (paymentInfoBox) {
       paymentInfoBox.style.display = 'none';
     }
+
+    // Lead event — SINPE is an alternative payment, successful order = Lead
+    const qty = parseInt(data.cantidad) || 1;
+    const total = pricing[qty] || pricing[1];
+    metaTrack('Lead', {
+      value: total,
+      currency: 'CRC'
+    });
 
     // Show success message
     showMessage(`¡Pedido recibido! Número de orden: ${result.orderId}. Revisá tu correo para las instrucciones de pago SINPE.`, 'success');
@@ -283,12 +422,21 @@ async function handleSinpePayment(data) {
 // Handle Tilopay payment
 async function handleTilopayPayment(data) {
   try {
+    // Forward Meta cookies for CAPI
+    const metaCookies = getMetaCookies();
+    const payload = {
+      ...data,
+      _fbp: metaCookies._fbp,
+      _fbc: metaCookies._fbc,
+      external_id: getOrCreateExternalId()
+    };
+
     const response = await fetch(`${API_BASE_URL}/tilopay/create-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -303,6 +451,18 @@ async function handleTilopayPayment(data) {
 
     // Redirect to Tilopay payment page
     if (result.paymentUrl) {
+      // InitiateCheckout for Tarjeta — fire AFTER API response with matching eventID for dedup
+      if (result.metaEventId) {
+        const qty = parseInt(data.cantidad) || 1;
+        const total = pricing[qty] || pricing[1];
+        metaTrack('InitiateCheckout', {
+          content_ids: ['deepclean'],
+          content_type: 'product',
+          num_items: qty,
+          value: total,
+          currency: 'CRC'
+        }, { eventID: result.metaEventId });
+      }
       window.location.href = result.paymentUrl;
     } else {
       throw new Error('No payment URL received');
@@ -352,7 +512,9 @@ function showLoading(show) {
   }
 }
 
-// Initialize total on page load
+// Initialize total on page load + Meta Pixel optimizations
 document.addEventListener('DOMContentLoaded', function() {
   updateTotal();
+  setupAdvancedMatching();
+  setupViewContentObserver();
 });

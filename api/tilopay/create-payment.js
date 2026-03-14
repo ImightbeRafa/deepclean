@@ -1,3 +1,5 @@
+import { sendMetaEvent, generateEventId } from '../utils/meta.js';
+
 /**
  * Authenticate with Tilopay API
  */
@@ -210,9 +212,20 @@ export default async function handler(req, res) {
       throw new Error('No payment URL received from Tilopay');
     }
 
+    // Meta CAPI: InitiateCheckout (fire-and-forget)
+    const metaEventId = generateEventId('ic', orderId);
+    sendMetaEvent('InitiateCheckout', metaEventId, orderData, req, {
+      value: total,
+      currency: 'CRC',
+      content_ids: ['deepclean'],
+      content_type: 'product',
+      num_items: quantity
+    }, `${appUrl}/#pedido`).catch(() => {});
+
     return res.json({
       success: true,
       orderId,
+      metaEventId,
       paymentUrl: paymentUrl,
       transactionId: paymentData.id || paymentData.transaction_id
     });

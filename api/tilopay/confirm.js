@@ -1,5 +1,6 @@
 import { sendOrderEmail } from '../utils/email.js';
 import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
+import { sendMetaEvent, generateEventId } from '../utils/meta.js';
 
 /**
  * In-memory set of already-processed order IDs.
@@ -120,6 +121,17 @@ export default async function handler(req, res) {
     } catch (betsyError) {
       console.error(`❌ [Confirm] Failed to sync order to Betsy CRM:`, betsyError);
     }
+
+    // Meta CAPI: Purchase (fire-and-forget)
+    const appUrl = (process.env.APP_URL || 'https://deepclean.shopping').replace(/\/+$/, '');
+    const metaEventId = generateEventId('purchase', orderId, transactionId);
+    sendMetaEvent('Purchase', metaEventId, order, req, {
+      value: order.total || 0,
+      currency: 'CRC',
+      content_ids: ['deepclean'],
+      content_type: 'product',
+      num_items: parseInt(order.cantidad, 10) || 1
+    }, `${appUrl}/success.html`).catch(() => {});
 
     return res.json({
       success: true,

@@ -8,6 +8,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+
+  var _dcExtId = localStorage.getItem('dc_external_id');
+  if (!_dcExtId) { _dcExtId = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2,9); localStorage.setItem('dc_external_id', _dcExtId); }
+  fbq('init', '1287887989919259', { external_id: _dcExtId });
+  fbq('track', 'PageView');
+  </script>
+  <!-- End Meta Pixel Code -->
+
   <style>
     * {
       margin: 0;
@@ -148,6 +166,10 @@
   </style>
 </head>
 <body>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1287887989919259&ev=PageView&noscript=1"
+  /></noscript>
+
   <div class="container">
 
     <!-- LOADING STATE (default) -->
@@ -198,6 +220,29 @@
 
   <script>
     (function() {
+      // --- Meta Pixel Purchase tracking helper ---
+      function metaTrack(eventName, params, options) {
+        try {
+          if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+            if (params && options) { window.fbq('track', eventName, params, options); return; }
+            if (params) { window.fbq('track', eventName, params); return; }
+            window.fbq('track', eventName);
+          }
+        } catch(e) {}
+      }
+
+      function getPurchasePayloadFromOrder(order) {
+        if (!order || !order.total) return null;
+        return {
+          value: Number(order.total) || 0,
+          currency: 'CRC',
+          content_ids: ['deepclean'],
+          content_type: 'product',
+          num_items: parseInt(order.cantidad, 10) || 1
+        };
+      }
+      // --- End Meta helpers ---
+
       function showView(name) {
         document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
         var el = document.getElementById('view-' + name);
@@ -213,6 +258,23 @@
       var code = urlParams.get('code');
       var returnData = urlParams.get('returnData');
       var description = urlParams.get('description') || urlParams.get('mensaje');
+
+      // Meta Purchase dedup event ID — must match server-side format exactly
+      var metaEventId = 'purchase_' + (orderId || '') + '_' + (transactionId || '');
+      var purchaseStorageKey = 'meta_purchase_' + (orderId || '') + '_' + (transactionId || '');
+
+      function trackPurchaseOnce() {
+        if (sessionStorage.getItem(purchaseStorageKey)) return;
+        if (!returnData) return;
+        try {
+          var decoded = atob(returnData);
+          var order = JSON.parse(decoded);
+          var payload = getPurchasePayloadFromOrder(order);
+          if (!payload) return;
+          metaTrack('Purchase', payload, { eventID: metaEventId });
+          sessionStorage.setItem(purchaseStorageKey, '1');
+        } catch(e) {}
+      }
 
       console.log('[Success Page] URL params:', { orderId: orderId, code: code, hasReturnData: !!returnData });
 
@@ -248,6 +310,7 @@
         console.log('[Success Page] Already confirmed this order in this session, skipping API call');
         document.getElementById('order-number').textContent = orderId || '—';
         showView('success');
+        trackPurchaseOnce();
         return;
       }
 
@@ -259,6 +322,12 @@
         return;
       }
 
+      // Forward _fbp, _fbc, external_id to confirm endpoint for CAPI
+      var _fbp = ''; var _fbc = '';
+      try { document.cookie.split(';').forEach(function(c) { c = c.trim(); if (c.startsWith('_fbp=')) _fbp = c.substring(5); if (c.startsWith('_fbc=')) _fbc = c.substring(5); }); } catch(e) {}
+      var externalId = '';
+      try { externalId = localStorage.getItem('dc_external_id') || ''; } catch(e) {}
+
       // Call confirm endpoint
       console.log('[Success Page] Confirming payment and processing order...');
       fetch('/api/tilopay/confirm', {
@@ -268,7 +337,10 @@
           orderId: orderId,
           transactionId: transactionId,
           code: code,
-          returnData: returnData
+          returnData: returnData,
+          _fbp: _fbp,
+          _fbc: _fbc,
+          external_id: externalId
         })
       })
       .then(function(response) { return response.json(); })
@@ -278,10 +350,12 @@
           sessionStorage.setItem(confirmKey, '1');
           document.getElementById('order-number').textContent = orderId || '—';
           showView('success');
+          trackPurchaseOnce();
         } else if (data.alreadyProcessed) {
           sessionStorage.setItem(confirmKey, '1');
           document.getElementById('order-number').textContent = orderId || '—';
           showView('success');
+          trackPurchaseOnce();
         } else {
           console.error('[Success Page] Confirm failed:', data);
           showView('error');
