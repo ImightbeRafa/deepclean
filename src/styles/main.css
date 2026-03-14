@@ -48,6 +48,48 @@ body {
   padding: 0 var(--spacing-md);
 }
 
+/* Announcement Bar */
+.announcement-bar {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-white);
+  text-align: center;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.announcement-bar-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.announcement-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.announcement-bar-icon {
+  font-size: 1.1rem;
+}
+
+.announcement-bar-timer {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.15rem 0.6rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  margin-left: 0.3rem;
+}
+
 /* Header */
 .header {
   background-color: var(--color-white);

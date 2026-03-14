@@ -512,9 +512,36 @@ function showLoading(show) {
   }
 }
 
+// Countdown timer for announcement bar — counts to midnight local time
+function startAnnouncementTimer() {
+  const timerEl = document.getElementById('announcement-timer');
+  if (!timerEl) return;
+
+  function update() {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const diff = midnight - now;
+
+    if (diff <= 0) {
+      timerEl.textContent = '00:00:00';
+      return;
+    }
+
+    const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    timerEl.textContent = h + ':' + m + ':' + s;
+  }
+
+  update();
+  setInterval(update, 1000);
+}
+
 // Initialize total on page load + Meta Pixel optimizations
 document.addEventListener('DOMContentLoaded', function() {
   updateTotal();
   setupAdvancedMatching();
   setupViewContentObserver();
+  startAnnouncementTimer();
 });
