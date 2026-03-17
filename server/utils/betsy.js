@@ -23,16 +23,10 @@ export async function sendOrderToBetsy(orderData) {
     const transactionId = orderData.paymentId || orderData.transactionId || 'PENDING';
 
     let paymentComment = '';
-    if (paymentMethod === 'SINPE') {
-      paymentComment = `Pago: SINPE Móvil - Estado: Pendiente de confirmación`;
-    } else if (paymentMethod === 'Tilopay' || paymentMethod === 'Tarjeta') {
-      if (paymentStatus === 'PAGADO') {
-        paymentComment = `Pago: Tarjeta (Tilopay) - Estado: PAGADO - ID Transacción: ${transactionId}`;
-      } else {
-        paymentComment = `Pago: Tarjeta (Tilopay) - Estado: Pendiente`;
-      }
+    if (paymentStatus === 'PAGADO') {
+      paymentComment = `Pago: Tarjeta (Tilopay) - Estado: PAGADO - ID Transacción: ${transactionId}`;
     } else {
-      paymentComment = `Pago: ${paymentMethod} - Estado: ${paymentStatus}`;
+      paymentComment = `Pago: Tarjeta (Tilopay) - Estado: Pendiente`;
     }
 
     // Build color details for comments

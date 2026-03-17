@@ -277,43 +277,6 @@ if (quantitySelect) {
   updateColorSelectors();
 }
 
-// Payment method change handler
-const paymentMethodSelect = document.getElementById('metodo-pago');
-const paymentInfoBox = document.getElementById('payment-info');
-
-if (paymentMethodSelect && paymentInfoBox) {
-  paymentMethodSelect.addEventListener('change', function() {
-    const selectedMethod = this.value;
-
-    if (selectedMethod === 'SINPE') {
-      paymentInfoBox.style.display = 'block';
-      paymentInfoBox.innerHTML = `
-        <div class="payment-instructions sinpe">
-          <h4>📱 Instrucciones SINPE Móvil</h4>
-          <p>📱 <strong>Número:</strong> 6201-9914</p>
-          <p>👤 <strong>Nombre:</strong> Rafael Garcia</p>
-          <p>⚠️ <strong>Importante:</strong></p>
-          <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-            <li>Use el número de su orden en el concepto del SINPE</li>
-            <li>Guarde el comprobante de pago</li>
-            <li>Envíe el comprobante por WhatsApp al 7161-8029</li>
-          </ul>
-        </div>
-      `;
-    } else if (selectedMethod === 'Tarjeta') {
-      paymentInfoBox.style.display = 'block';
-      paymentInfoBox.innerHTML = `
-        <div class="payment-instructions tilopay">
-          <h4>💳 Pago con Tarjeta</h4>
-          <p>Será redirigido a la pasarela de pago segura de Tilopay para completar su compra.</p>
-          <p>Aceptamos todas las tarjetas de crédito y débito.</p>
-        </div>
-      `;
-    } else {
-      paymentInfoBox.style.display = 'none';
-    }
-  });
-}
 
 // Form submission handler
 const orderForm = document.getElementById('order-form');
@@ -330,93 +293,17 @@ if (orderForm) {
     const colors = getColorSelections();
     data.color = colors.join(', ');
 
-    const paymentMethod = data['metodo-pago'];
-
-    if (!paymentMethod) {
-      showMessage('Por favor, seleccioná un método de pago', 'error');
-      return;
-    }
-
     // Show loading overlay
     showLoading(true);
 
     try {
-      if (paymentMethod === 'SINPE') {
-        // InitiateCheckout for SINPE — no server mirror, fire immediately
-        const qty = parseInt(data.cantidad) || 1;
-        const total = pricing[qty] || pricing[1];
-        metaTrack('InitiateCheckout', {
-          content_ids: ['deepclean'],
-          content_type: 'product',
-          num_items: qty,
-          value: total,
-          currency: 'CRC'
-        });
-        await handleSinpePayment(data);
-      } else if (paymentMethod === 'Tarjeta') {
-        await handleTilopayPayment(data);
-      }
+      await handleTilopayPayment(data);
     } catch (error) {
       console.error('Payment error:', error);
       showMessage('Error al procesar el pedido. Por favor, intentá de nuevo.', 'error');
       showLoading(false);
     }
   });
-}
-
-// Handle SINPE payment
-async function handleSinpePayment(data) {
-  try {
-    // Forward Meta cookies for CAPI
-    const metaCookies = getMetaCookies();
-    const payload = {
-      ...data,
-      _fbp: metaCookies._fbp,
-      _fbc: metaCookies._fbc,
-      external_id: getOrCreateExternalId()
-    };
-
-    const response = await fetch(`${API_BASE_URL}/email/send-sinpe`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to process SINPE order');
-    }
-
-    const result = await response.json();
-
-    showLoading(false);
-
-    // Hide payment info box
-    const paymentInfoBox = document.getElementById('payment-info');
-    if (paymentInfoBox) {
-      paymentInfoBox.style.display = 'none';
-    }
-
-    // Lead event — SINPE is an alternative payment, successful order = Lead
-    const qty = parseInt(data.cantidad) || 1;
-    const total = pricing[qty] || pricing[1];
-    metaTrack('Lead', {
-      value: total,
-      currency: 'CRC'
-    });
-
-    // Show success message
-    showMessage(`¡Pedido recibido! Número de orden: ${result.orderId}. Revisá tu correo para las instrucciones de pago SINPE.`, 'success');
-
-    // Reset form
-    orderForm.reset();
-    updateTotal();
-
-  } catch (error) {
-    console.error('SINPE payment error:', error);
-    throw error;
-  }
 }
 
 // Handle Tilopay payment
