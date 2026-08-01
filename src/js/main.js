@@ -141,8 +141,16 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 function setFaqExpanded(item, expanded) {
   const button = item.querySelector('.faq-question');
+  const answer = item.querySelector('.faq-answer');
   item.classList.toggle('active', expanded);
   if (button) button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  if (!answer) return;
+
+  if (expanded) {
+    answer.style.maxHeight = `${answer.scrollHeight + 24}px`;
+  } else {
+    answer.style.maxHeight = '0px';
+  }
 }
 
 // FAQ accordion functionality
@@ -158,6 +166,12 @@ document.querySelectorAll('.faq-question').forEach(button => {
     if (!isActive) {
       setFaqExpanded(item, true);
     }
+  });
+});
+
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.faq-item.active .faq-answer').forEach(answer => {
+    answer.style.maxHeight = `${answer.scrollHeight + 24}px`;
   });
 });
 
