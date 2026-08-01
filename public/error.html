@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Error en el Pago - DeepClean</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,9 +19,15 @@
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
 
-  var _dcExtId = localStorage.getItem('dc_external_id');
-  if (!_dcExtId) { _dcExtId = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2,9); localStorage.setItem('dc_external_id', _dcExtId); }
-  fbq('init', '1287887989919259', { external_id: _dcExtId });
+  var _dcExtId = '';
+  try {
+    _dcExtId = localStorage.getItem('dc_external_id');
+    if (!_dcExtId) {
+      _dcExtId = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+      localStorage.setItem('dc_external_id', _dcExtId);
+    }
+  } catch (e) {}
+  fbq('init', '1287887989919259', _dcExtId ? { external_id: _dcExtId } : undefined);
   fbq('track', 'PageView');
   </script>
   <!-- End Meta Pixel Code -->
@@ -33,14 +39,20 @@
       box-sizing: border-box;
     }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
     }
 
     .error-container {
@@ -48,8 +60,11 @@
       border-radius: 20px;
       padding: 50px;
       max-width: 500px;
+      width: 100%;
       text-align: center;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-sizing: border-box;
+      overflow-wrap: anywhere;
     }
 
     .error-icon {
@@ -84,7 +99,10 @@
     }
 
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
       padding: 15px 30px;
       background: linear-gradient(135deg, #059669 0%, #10b981 100%);
       color: white;
@@ -95,8 +113,16 @@
       transition: transform 0.2s;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    .btn:focus-visible,
+    .contact-link:focus-visible {
+      outline: 3px solid #34d399;
+      outline-offset: 2px;
     }
 
     .btn-secondary {
@@ -115,6 +141,16 @@
       margin-bottom: 10px;
     }
 
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      color: #059669;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
     #error-details {
       display: none;
       background: #fef2f2;
@@ -123,11 +159,35 @@
       padding: 15px;
       margin: 20px 0;
       text-align: left;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     #error-details p {
       margin-bottom: 5px;
       font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        align-items: flex-start;
+        padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+      }
+
+      .error-container {
+        padding: 24px 20px;
+        border-radius: 16px;
+        margin: auto 0;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .btn {
+        width: 100%;
+        margin: 8px 0;
+      }
     }
   </style>
 </head>
@@ -165,8 +225,8 @@
 
     <div class="contact-info">
       <p>¿Necesitás ayuda?</p>
-      <p>Contáctanos por WhatsApp: <strong>7161-8029</strong></p>
-      <p>Instagram: <strong>@deepclean_cr</strong></p>
+      <p><a class="contact-link" href="https://wa.me/50671618029" target="_blank" rel="noopener">WhatsApp: 7161-8029</a></p>
+      <p><a class="contact-link" href="https://www.instagram.com/deepclean_cr/" target="_blank" rel="noopener">Instagram: @deepclean_cr</a></p>
     </div>
   </div>
 

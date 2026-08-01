@@ -114,6 +114,17 @@ const pricing = {
 // Shipping is always FREE
 const SHIPPING_COST = 0;
 
+/** Deterministic CRC display matching site copy: ₡15.900 */
+function formatCRC(amount) {
+  const n = Math.round(Number(amount) || 0);
+  const grouped = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `₡${n < 0 ? '-' : ''}${grouped}`;
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
@@ -121,35 +132,54 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
       target.scrollIntoView({
-        behavior: 'smooth',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
         block: 'start'
       });
     }
   });
 });
 
+function setFaqExpanded(item, expanded) {
+  const button = item.querySelector('.faq-question');
+  const answer = item.querySelector('.faq-answer');
+  item.classList.toggle('active', expanded);
+  if (button) button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  if (!answer) return;
+
+  if (expanded) {
+    answer.style.maxHeight = `${answer.scrollHeight + 24}px`;
+  } else {
+    answer.style.maxHeight = '0px';
+  }
+}
+
 // FAQ accordion functionality
 document.querySelectorAll('.faq-question').forEach(button => {
   button.addEventListener('click', function() {
     const item = this.parentElement;
     const isActive = item.classList.contains('active');
-    
-    // Close all items
+
     document.querySelectorAll('.faq-item').forEach(faq => {
-      faq.classList.remove('active');
+      setFaqExpanded(faq, false);
     });
-    
-    // Open clicked item if it wasn't active
+
     if (!isActive) {
-      item.classList.add('active');
+      setFaqExpanded(item, true);
     }
+  });
+});
+
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.faq-item.active .faq-answer').forEach(answer => {
+    answer.style.maxHeight = `${answer.scrollHeight + 24}px`;
   });
 });
 
 // Update total price based on quantity
 const quantitySelect = document.getElementById('cantidad');
-const totalElement = document.querySelector('.summary-total span:last-child');
-const summaryItemElement = document.querySelector('.summary-item span:last-child');
+const totalElement = document.querySelector('.summary-total-price') || document.querySelector('.summary-total span:last-child');
+const summaryItemElement = document.querySelector('.summary-product-price') || document.querySelector('.summary-item span:last-child');
+const summaryLabelElement = document.querySelector('.summary-product-label');
 const savingsElement = document.querySelector('.summary-savings');
 
 function updateTotal() {
@@ -160,16 +190,18 @@ function updateTotal() {
   const unitPrice = pricing[1];
 
   // Shipping is always FREE
-  const shippingCost = 0;
+  const shippingCost = SHIPPING_COST;
   const total = subtotal + shippingCost;
 
-  // Update quantity and total display
+  // Show quantity on the label; price is always the bundle subtotal (never "N x bundle")
+  if (summaryLabelElement) {
+    summaryLabelElement.textContent = quantity === 1
+      ? 'DeepClean – Cámara WiFi HD'
+      : `DeepClean × ${quantity}`;
+  }
+
   if (summaryItemElement) {
-    if (quantity === 1) {
-      summaryItemElement.textContent = `₡${subtotal.toLocaleString('es-CR')}`;
-    } else {
-      summaryItemElement.textContent = `${quantity} x ₡${subtotal.toLocaleString('es-CR')}`;
-    }
+    summaryItemElement.textContent = formatCRC(subtotal);
   }
 
   // Calculate and show savings for multiple units
@@ -178,24 +210,33 @@ function updateTotal() {
       const regularPrice = unitPrice * quantity;
       const savings = regularPrice - subtotal;
       savingsElement.style.display = 'flex';
-      savingsElement.querySelector('.savings-amount').textContent = `-₡${savings.toLocaleString('es-CR')}`;
+      savingsElement.querySelector('.savings-amount').textContent = `-${formatCRC(savings)}`;
     } else {
       savingsElement.style.display = 'none';
     }
   }
 
-  // Format total
-  totalElement.textContent = `₡${total.toLocaleString('es-CR')}`;
+  totalElement.textContent = formatCRC(total);
 
-  // Update submit button text
-  const submitBtn = document.querySelector('.btn-submit');
-  if (submitBtn) {
-    submitBtn.textContent = `CONFIRMAR PEDIDO – ₡${total.toLocaleString('es-CR')} (envío incluido)`;
+  const submitBtn = document.getElementById('submit-order-btn') || document.querySelector('.btn-submit');
+  if (submitBtn && !submitBtn.disabled) {
+    submitBtn.textContent = `CONFIRMAR PEDIDO – ${formatCRC(total)} (envío incluido)`;
   }
 }
 
 // Dynamic color selector based on quantity
 const colorContainer = document.getElementById('color-selector-container');
+
+function colorOptionHtml(name, value, checked, small = false) {
+  const checkedAttr = checked ? ' checked' : '';
+  const smClass = small ? ' color-option-sm' : '';
+  return `
+    <label class="color-option${smClass}">
+      <input type="radio" name="${name}" value="${value}"${checkedAttr}>
+      <span class="color-swatch color-${value === 'Blanco' ? 'white' : 'black'}" aria-hidden="true"></span>
+      <span>${value}</span>
+    </label>`;
+}
 
 function updateColorSelectors() {
   if (!colorContainer || !quantitySelect) return;
@@ -203,40 +244,22 @@ function updateColorSelectors() {
   const quantity = parseInt(quantitySelect.value) || 1;
 
   if (quantity === 1) {
-    // Single unit: simple radio buttons
     colorContainer.innerHTML = `
-      <div class="color-selector">
-        <label class="color-option">
-          <input type="radio" name="color_1" value="Blanco" checked>
-          <span class="color-swatch color-white"></span>
-          <span>Blanco</span>
-        </label>
-        <label class="color-option">
-          <input type="radio" name="color_1" value="Negro">
-          <span class="color-swatch color-black"></span>
-          <span>Negro</span>
-        </label>
+      <div class="color-selector" role="radiogroup" aria-label="Color del DeepClean">
+        ${colorOptionHtml('color_1', 'Blanco', true)}
+        ${colorOptionHtml('color_1', 'Negro', false)}
       </div>`;
   } else {
-    // Multiple units: one color picker per unit
     let html = '';
     for (let i = 1; i <= quantity; i++) {
       html += `
-      <div class="color-unit-row">
-        <span class="color-unit-label">Unidad ${i}:</span>
-        <div class="color-selector">
-          <label class="color-option color-option-sm">
-            <input type="radio" name="color_${i}" value="Blanco" checked>
-            <span class="color-swatch color-white"></span>
-            <span>Blanco</span>
-          </label>
-          <label class="color-option color-option-sm">
-            <input type="radio" name="color_${i}" value="Negro">
-            <span class="color-swatch color-black"></span>
-            <span>Negro</span>
-          </label>
+      <fieldset class="color-unit-row">
+        <legend class="color-unit-label">Unidad ${i}:</legend>
+        <div class="color-selector" role="radiogroup" aria-label="Color unidad ${i}">
+          ${colorOptionHtml(`color_${i}`, 'Blanco', true, true)}
+          ${colorOptionHtml(`color_${i}`, 'Negro', false, true)}
         </div>
-      </div>`;
+      </fieldset>`;
     }
     colorContainer.innerHTML = html;
   }
@@ -280,6 +303,18 @@ if (quantitySelect) {
 
 // Form submission handler
 const orderForm = document.getElementById('order-form');
+const submitOrderBtn = document.getElementById('submit-order-btn') || document.querySelector('.btn-submit');
+
+function setSubmitBusy(busy) {
+  if (!submitOrderBtn) return;
+  submitOrderBtn.disabled = !!busy;
+  submitOrderBtn.setAttribute('aria-busy', busy ? 'true' : 'false');
+  if (!busy) {
+    updateTotal();
+  } else {
+    submitOrderBtn.textContent = 'Procesando...';
+  }
+}
 
 if (orderForm) {
   orderForm.addEventListener('submit', async function(e) {
@@ -294,6 +329,7 @@ if (orderForm) {
     data.color = colors.join(', ');
 
     // Show loading overlay
+    setSubmitBusy(true);
     showLoading(true);
 
     try {
@@ -302,6 +338,7 @@ if (orderForm) {
       console.error('Payment error:', error);
       showMessage('Error al procesar el pedido. Por favor, intentá de nuevo.', 'error');
       showLoading(false);
+      setSubmitBusy(false);
     }
   });
 }
@@ -363,39 +400,51 @@ async function handleTilopayPayment(data) {
 
 // Show message function
 function showMessage(text, type = 'success') {
-  // Remove existing messages
+  const statusHost = document.getElementById('form-status');
   const existingMessage = document.querySelector('.message');
   if (existingMessage) {
     existingMessage.remove();
   }
 
-  // Create new message
   const message = document.createElement('div');
   message.className = `message ${type}`;
+  message.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  message.setAttribute('tabindex', '-1');
   message.textContent = text;
-  message.style.maxWidth = '100%';
-  message.style.width = '100%';
 
-  // Insert before form
-  const orderForm = document.getElementById('order-form');
-  if (orderForm) {
-    orderForm.parentNode.insertBefore(message, orderForm);
-
-    // Scroll to message
-    message.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    // Auto remove after 8 seconds
-    setTimeout(() => {
-      message.remove();
-    }, 8000);
+  if (statusHost) {
+    statusHost.appendChild(message);
+  } else {
+    const form = document.getElementById('order-form');
+    if (form) form.parentNode.insertBefore(message, form);
   }
+
+  message.focus({ preventScroll: true });
+  message.scrollIntoView({
+    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    block: 'center'
+  });
+
+  setTimeout(() => {
+    if (message.isConnected) message.remove();
+  }, 8000);
 }
 
 // Show/hide loading overlay
 function showLoading(show) {
   const overlay = document.getElementById('loading-overlay');
-  if (overlay) {
-    overlay.style.display = show ? 'flex' : 'none';
+  if (!overlay) return;
+
+  if (show) {
+    overlay.hidden = false;
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.style.display = 'flex';
+    document.body.setAttribute('aria-busy', 'true');
+  } else {
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.style.display = 'none';
+    document.body.removeAttribute('aria-busy');
   }
 }
 
