@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>DeepClean • Limpiador de Oídos Inalámbrico con Cámara WiFi HD | Costa Rica</title>
   <meta name="description" content="DeepClean: Limpiador de oídos inalámbrico con cámara HD 1080p, WiFi 2.4GHz, 6 luces LED, IP67. Incluye 8 accesorios + envío gratis a todo Costa Rica. ₡15.900">
   <meta name="keywords" content="limpiador oídos, cámara oído, WiFi, HD 1080p, limpieza oídos, Costa Rica, envío gratis, deepclean">
@@ -34,9 +34,15 @@
   'https://connect.facebook.net/en_US/fbevents.js');
 
   // Initialize with external_id for cross-session stitching
-  var _dcExtId = localStorage.getItem('dc_external_id');
-  if (!_dcExtId) { _dcExtId = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2,9); localStorage.setItem('dc_external_id', _dcExtId); }
-  fbq('init', '1287887989919259', { external_id: _dcExtId });
+  var _dcExtId = '';
+  try {
+    _dcExtId = localStorage.getItem('dc_external_id');
+    if (!_dcExtId) {
+      _dcExtId = 'dc_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+      localStorage.setItem('dc_external_id', _dcExtId);
+    }
+  } catch (e) { /* private/restricted Safari */ }
+  fbq('init', '1287887989919259', _dcExtId ? { external_id: _dcExtId } : undefined);
   fbq('track', 'PageView');
   </script>
   <!-- End Meta Pixel Code -->
@@ -61,13 +67,13 @@
   <header class="header" id="header">
     <div class="container">
       <a href="#producto" class="logo">
-        <img src="/images/logo.png" alt="DeepClean Logo" class="logo-img">
+        <img src="/images/logo.png" alt="DeepClean Logo" class="logo-img" width="40" height="40" decoding="async">
         <h1 class="logo-text">DeepClean</h1>
       </a>
-      <nav class="nav">
-        <a href="#producto" class="nav-link">Producto</a>
-        <a href="#beneficios" class="nav-link">Beneficios</a>
-        <a href="#como-usarlo" class="nav-link">Cómo Usarlo</a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#producto" class="nav-link nav-link-secondary">Producto</a>
+        <a href="#beneficios" class="nav-link nav-link-secondary">Beneficios</a>
+        <a href="#como-usarlo" class="nav-link nav-link-secondary">Cómo Usarlo</a>
         <a href="#pedido" class="nav-link nav-link-cta">Ordena Acá</a>
       </nav>
     </div>
@@ -123,18 +129,18 @@
           <div class="contact-info-hero">
             <div class="contact-item">
               <span class="contact-icon">💬</span>
-              <a href="https://wa.me/50671618029" target="_blank">WhatsApp: 7161-8029</a>
+              <a href="https://wa.me/50671618029" target="_blank" rel="noopener">WhatsApp: 7161-8029</a>
             </div>
             <div class="contact-item">
               <span class="contact-icon">📷</span>
-              <a href="https://www.instagram.com/deepclean_cr/" target="_blank">@deepclean_cr</a>
+              <a href="https://www.instagram.com/deepclean_cr/" target="_blank" rel="noopener">@deepclean_cr</a>
             </div>
           </div>
         </div>
 
         <div class="hero-image">
           <div class="product-image-container">
-            <img src="/images/product.png" alt="DeepClean – Limpiador de Oídos Inalámbrico con Cámara WiFi HD" class="product-main-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="/images/product.png" alt="DeepClean – Limpiador de Oídos Inalámbrico con Cámara WiFi HD" class="product-main-image" width="480" height="480" fetchpriority="high" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="image-placeholder" style="display:none;">
               <svg class="product-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
@@ -160,7 +166,7 @@
 
       <div class="product-showcase">
         <div class="showcase-image">
-          <img src="/images/product-detail.png" alt="DeepClean cámara HD detalle" class="product-showcase-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <img src="/images/product-detail.png" alt="DeepClean cámara HD detalle" class="product-showcase-image" width="600" height="600" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="showcase-placeholder" style="display:none;">
             <svg class="showcase-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -272,7 +278,7 @@
     <div class="container">
       <div class="section-header">
         <h2>Usarlo es Súper Fácil</h2>
-        <p class="section-description">En 3 simples pasos ya estás viendo tu oído en HD 📱🔬</p>
+        <p class="section-description">En 4 simples pasos ya estás viendo tu oído en HD 📱🔬</p>
       </div>
 
       <div class="steps">
@@ -372,61 +378,61 @@
 
       <div class="faq-list">
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
             <span>¿Es seguro usar el DeepClean en casa?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
             <p>¡Sí! El DeepClean está diseñado con puntas de silicona suave de grado médico y un tope de seguridad que evita la inserción excesiva. Es seguro para adultos y niños. Sin embargo, recordá usarlo con cuidado y nunca forzar la entrada.</p>
           </div>
         </div>
 
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
             <span>¿Funciona con mi celular?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
             <p>Sí, es compatible con iOS (iPhone) y Android. Solo necesitás descargar la app gratuita "WiFi Otoscope" desde la App Store o Google Play. Se conecta por WiFi 2.4 GHz, no necesita Bluetooth.</p>
           </div>
         </div>
 
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
             <span>¿Cuánto dura la batería?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
             <p>La batería recargable dura aproximadamente 1-2 horas de uso continuo, más que suficiente para revisar toda la familia. Se carga por USB-C en menos de 1 hora.</p>
           </div>
         </div>
 
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
             <span>¿Cuánto tarda el envío?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
             <p>El envío es GRATIS a todo Costa Rica. Normalmente tarda entre 3-5 días hábiles. Te enviamos el número de seguimiento por WhatsApp y email para que rastreés tu pedido.</p>
           </div>
         </div>
 
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
             <span>¿Se puede usar para otras cosas además del oído?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
             <p>¡Sí! Podés usar la cámara HD del DeepClean para inspeccionar nariz, garganta, cuero cabelludo, piel y hasta espacios pequeños del hogar. Es una herramienta de inspección versátil.</p>
           </div>
         </div>
 
         <div class="faq-item">
-          <button class="faq-question">
+          <button type="button" class="faq-question" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
             <span>¿Cómo se limpia?</span>
-            <span class="faq-arrow">▼</span>
+            <span class="faq-arrow" aria-hidden="true">▼</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
             <p>Gracias a su certificación IP67, podés limpiar las puntas con agua y jabón neutro. También podés usar alcohol isopropílico para desinfectar. El cepillo incluido ayuda a mantener la lente limpia.</p>
           </div>
         </div>
@@ -444,13 +450,13 @@
 
       <div class="order-container">
         <div class="order-summary">
-          <div class="product-image-container" style="max-width:100%;">
-            <img src="/images/product.png" alt="DeepClean" class="product-main-image">
+          <div class="product-image-container order-summary-image" style="max-width:100%;">
+            <img src="/images/product.png" alt="DeepClean" class="product-main-image" width="320" height="320" loading="lazy" decoding="async">
           </div>
           <h3>Resumen del Pedido</h3>
           <div class="summary-item">
-            <span>DeepClean – Cámara WiFi HD</span>
-            <span>₡15,900</span>
+            <span class="summary-product-label">DeepClean – Cámara WiFi HD</span>
+            <span class="summary-product-price">₡15.900</span>
           </div>
           <div class="summary-savings" style="display: none;">
             <span>Ahorro por compra múltiple 🎉</span>
@@ -462,7 +468,7 @@
           </div>
           <div class="summary-total">
             <span>Total</span>
-            <span>₡15,900</span>
+            <span class="summary-total-price">₡15.900</span>
           </div>
         </div>
 
@@ -470,25 +476,27 @@
           <h3>Información de Envío</h3>
 
           <form id="order-form">
+            <div id="form-status" class="form-status" role="status" aria-live="polite" aria-atomic="true"></div>
+
             <div class="form-group">
               <label for="nombre">Nombre Completo *</label>
-              <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo">
+              <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo" autocomplete="name" enterkeyhint="next">
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label for="telefono">Teléfono *</label>
-                <input type="tel" id="telefono" name="telefono" required placeholder="8888-8888">
+                <input type="tel" id="telefono" name="telefono" required placeholder="8888-8888" autocomplete="tel" inputmode="tel" enterkeyhint="next">
               </div>
               <div class="form-group">
                 <label for="email">Email *</label>
-                <input type="email" id="email" name="email" required placeholder="tucorreo@email.com">
+                <input type="email" id="email" name="email" required placeholder="tucorreo@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
               </div>
             </div>
 
             <div class="form-group">
               <label for="provincia">Provincia *</label>
-              <select id="provincia" name="provincia" required>
+              <select id="provincia" name="provincia" required autocomplete="address-level1">
                 <option value="">Selecciona</option>
                 <option value="San José">San José</option>
                 <option value="Alajuela">Alajuela</option>
@@ -503,30 +511,30 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="canton">Cantón *</label>
-                <input type="text" id="canton" name="canton" required placeholder="Tu cantón">
+                <input type="text" id="canton" name="canton" required placeholder="Tu cantón" autocomplete="address-level2" enterkeyhint="next">
               </div>
               <div class="form-group">
                 <label for="distrito">Distrito *</label>
-                <input type="text" id="distrito" name="distrito" required placeholder="Tu distrito">
+                <input type="text" id="distrito" name="distrito" required placeholder="Tu distrito" autocomplete="address-level3" enterkeyhint="next">
               </div>
             </div>
 
             <div class="form-group">
               <label for="direccion">Dirección *</label>
-              <textarea id="direccion" name="direccion" rows="2" required placeholder="Dirección exacta para el envío"></textarea>
+              <textarea id="direccion" name="direccion" rows="2" required placeholder="Dirección exacta para el envío" autocomplete="street-address" enterkeyhint="next"></textarea>
             </div>
 
-            <div class="form-group">
-              <label>Color *</label>
+            <fieldset class="form-group color-fieldset">
+              <legend>Color *</legend>
               <div id="color-selector-container">
                 <!-- Dynamically populated by JS based on quantity -->
               </div>
-            </div>
+            </fieldset>
 
             <div class="form-row">
               <div class="form-group">
                 <label for="cantidad">Cantidad *</label>
-                <select id="cantidad" name="cantidad">
+                <select id="cantidad" name="cantidad" autocomplete="off">
                   <option value="1">1 unidad</option>
                   <option value="2">2 unidades</option>
                   <option value="3">3 unidades</option>
@@ -538,10 +546,10 @@
 
             <div class="form-group">
               <label for="comentarios">Comentarios (opcional)</label>
-              <textarea id="comentarios" name="comentarios" rows="2" placeholder="¿Algún comentario adicional?"></textarea>
+              <textarea id="comentarios" name="comentarios" rows="2" placeholder="¿Algún comentario adicional?" enterkeyhint="done"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-submit">CONFIRMAR PEDIDO – ₡15.900 (envío incluido)</button>
+            <button type="submit" class="btn btn-primary btn-submit" id="submit-order-btn">CONFIRMAR PEDIDO – ₡15.900 (envío incluido)</button>
             <p class="form-note">* Serás redirigido a la pasarela de pago segura de Tilopay. Recibirás un correo con la confirmación de tu pedido.</p>
             <p class="form-note" style="margin-top: 0.5rem;">¿Preguntas? <a href="https://wa.me/50671618029" target="_blank" rel="noopener" style="color: #25D366; font-weight: bold;">WhatsApp: 7161-8029</a> | <a href="https://instagram.com/deepclean_cr" target="_blank" rel="noopener" style="color: #E1306C; font-weight: bold;">Instagram: @deepclean_cr</a></p>
           </form>
@@ -556,8 +564,8 @@
       <h2>Contáctanos</h2>
       <p>¿Tenés preguntas? Estamos aquí para ayudarte</p>
       <div class="contact-buttons">
-        <a href="https://wa.me/50671618029" target="_blank" class="btn btn-whatsapp"><span>💬</span> WhatsApp</a>
-        <a href="https://www.instagram.com/deepclean_cr/" target="_blank" class="btn btn-instagram"><span>📷</span> Instagram</a>
+        <a href="https://wa.me/50671618029" target="_blank" rel="noopener" class="btn btn-whatsapp"><span>💬</span> WhatsApp</a>
+        <a href="https://www.instagram.com/deepclean_cr/" target="_blank" rel="noopener" class="btn btn-instagram"><span>📷</span> Instagram</a>
       </div>
     </div>
   </section>
@@ -567,18 +575,18 @@
     <div class="container">
       <p>&copy; 2026 DeepClean. Todos los derechos reservados.</p>
       <div class="footer-links">
-        <a href="https://wa.me/50671618029" target="_blank">WhatsApp</a>
+        <a href="https://wa.me/50671618029" target="_blank" rel="noopener">WhatsApp</a>
         <span>•</span>
-        <a href="https://www.instagram.com/deepclean_cr/" target="_blank">Instagram</a>
+        <a href="https://www.instagram.com/deepclean_cr/" target="_blank" rel="noopener">Instagram</a>
       </div>
     </div>
   </footer>
 
   <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loading-overlay">
+  <div class="loading-overlay" id="loading-overlay" role="alertdialog" aria-modal="true" aria-hidden="true" aria-labelledby="loading-text" hidden>
     <div class="loading-spinner">
-      <div class="spinner"></div>
-      <p>Procesando su pedido...</p>
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loading-text">Procesando su pedido...</p>
     </div>
   </div>
 
