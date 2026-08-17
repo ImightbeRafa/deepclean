@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C · Pura Vida — DeepClean</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #fbf6ee;
+      --sand: #f0e4d0;
+      --ink: #1e2a24;
+      --mute: #5c675f;
+      --teal: #1a5c55;
+      --teal-deep: #123f3b;
+      --coral: #e07a5f;
+      --coral-deep: #c45c40;
+      --leaf: #6b8f71;
+      --white: #fffaf3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    img { max-width: 100%; display: block; }
+    .preview-bar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--teal-deep); color: #d7ebe8;
+      font-size: 0.8rem;
+    }
+    .preview-bar .inner {
+      max-width: 1120px; margin: 0 auto; padding: 0.55rem 1.25rem;
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .preview-bar a { color: #f0c4b6; text-decoration: none; }
+    .preview-bar a.on { color: #fff; font-weight: 800; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+
+    .top {
+      background: var(--coral);
+      color: #fff8f4;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+    }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
+    .brand { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; font-weight: 800; }
+    .brand img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--teal); }
+    nav { display: flex; gap: 1.1rem; align-items: center; font-size: 0.9rem; font-weight: 600; color: var(--mute); }
+    nav a { text-decoration: none; }
+    .nav-cta {
+      background: var(--coral); color: #fff; padding: 0.5rem 1rem;
+      border-radius: 999px;
+    }
+
+    .hero {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;
+      align-items: center; padding: 1.5rem 0 3.5rem;
+    }
+    .chip {
+      display: inline-block; background: #f3d9c8; color: var(--coral-deep);
+      font-weight: 800; font-size: 0.75rem; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 999px;
+      margin-bottom: 0.9rem;
+    }
+    h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(2.3rem, 4.5vw, 3.6rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: -0.03em;
+    }
+    .lede { margin: 0.9rem 0 1.2rem; color: var(--mute); font-size: 1.05rem; }
+    .price-card {
+      background: var(--white); border-radius: 28px; padding: 1.1rem 1.2rem;
+      box-shadow: 0 18px 40px rgba(30,42,36,0.08); margin-bottom: 1.1rem;
+    }
+    .price { font-family: Fraunces, serif; font-size: 2.8rem; font-weight: 700; }
+    .price-card small { display: block; color: var(--teal); font-weight: 700; }
+    .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.95rem 1.35rem; border-radius: 999px; text-decoration: none;
+      font-weight: 800;
+    }
+    .btn-coral { background: var(--coral); color: #fff; }
+    .btn-teal { background: var(--teal); color: #fff; }
+    .blob {
+      background:
+        radial-gradient(circle at 20% 20%, #f3d9c8, transparent 45%),
+        radial-gradient(circle at 80% 80%, #cfe0d4, transparent 40%),
+        var(--sand);
+      border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%;
+      padding: 1.6rem;
+    }
+    .blob img { margin: 0 auto; max-height: 400px; object-fit: contain; }
+    .contact { display: flex; gap: 1rem; margin-top: 1.1rem; font-size: 0.88rem; font-weight: 600; color: var(--teal); }
+
+    section { padding: 3.4rem 0; }
+    .sec { text-align: center; max-width: 36rem; margin: 0 auto 2rem; }
+    .sec span { color: var(--coral-deep); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    h2 { font-family: Fraunces, serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 700; margin: 0.3rem 0; }
+    .sec p { color: var(--mute); }
+
+    .why { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 2rem; align-items: center; }
+    .why img { border-radius: 28px; background: var(--white); }
+    .item { display: flex; gap: 0.85rem; background: var(--white); border-radius: 20px; padding: 1rem; margin-bottom: 0.7rem; }
+    .ico { width: 42px; height: 42px; border-radius: 14px; background: #e7f0e6; display: grid; place-items: center; font-size: 1.2rem; flex-shrink: 0; }
+    .item h3 { font-size: 1rem; }
+    .item p { color: var(--mute); font-size: 0.9rem; }
+
+    .t-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .t-grid article {
+      background: var(--white); border-radius: 24px; padding: 1.25rem;
+      box-shadow: 0 10px 24px rgba(30,42,36,0.06);
+    }
+    .t-grid p { font-family: Fraunces, serif; font-size: 1.12rem; font-style: italic; }
+    .who { margin-top: 0.8rem; font-family: "Plus Jakarta Sans", sans-serif; font-style: normal; font-size: 0.82rem; color: var(--mute); font-weight: 700; }
+
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; }
+    .steps article {
+      background: var(--sand); border-radius: 24px; padding: 1.2rem;
+      min-height: 180px;
+    }
+    .steps b {
+      display: grid; place-items: center; width: 36px; height: 36px;
+      background: var(--teal); color: #fff; border-radius: 50%; margin-bottom: 0.7rem;
+    }
+    .steps p { color: var(--mute); font-size: 0.9rem; }
+
+    .kit { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .kit li {
+      list-style: none; background: var(--white); border-radius: 18px;
+      padding: 1rem 1.1rem; font-weight: 600;
+    }
+    .kit small { display: block; font-weight: 500; color: var(--mute); }
+
+    .ship { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+    .ship article { background: var(--white); border-radius: 24px; padding: 1.3rem; text-align: center; }
+    .ship .hi { background: var(--teal); color: #fff; }
+    .ship .hi p { color: #d5ebe8; }
+    .ship p { color: var(--mute); margin-top: 0.3rem; }
+
+    details { background: var(--white); border-radius: 16px; padding: 0.9rem 1rem; margin-bottom: 0.55rem; }
+    summary { cursor: pointer; font-weight: 700; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    details p { color: var(--mute); margin-top: 0.45rem; }
+
+    .order { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 1.2rem; }
+    aside, form { background: var(--white); border-radius: 28px; padding: 1.3rem; }
+    aside { background: var(--teal); color: #fff; }
+    aside p { color: #cfe4e1; }
+    label { display: block; font-size: 0.8rem; font-weight: 700; margin: 0.7rem 0 0.25rem; }
+    input, select, textarea {
+      width: 100%; padding: 0.75rem 0.8rem; border-radius: 14px;
+      border: 1.5px solid #eadfce; background: var(--cream); font: inherit;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .submit {
+      width: 100%; margin-top: 1rem; border: 0; background: var(--coral);
+      color: #fff; font: inherit; font-weight: 800; padding: 1rem; border-radius: 999px; cursor: default;
+    }
+    .fine { text-align: center; color: var(--mute); font-size: 0.78rem; margin-top: 0.55rem; }
+    .sum-line, .sum-total { display: flex; justify-content: space-between; padding: 0.45rem 0; }
+    .sum-total { font-size: 1.2rem; font-weight: 800; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.4rem; padding-top: 0.7rem; }
+    footer.site { padding: 1.5rem 0 2.5rem; color: var(--mute); display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 600; }
+    @media (max-width: 860px) {
+      nav a:not(.nav-cta) { display: none; }
+      .hero, .why, .t-grid, .steps, .kit, .ship, .order, .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-bar">
+    <div class="inner">
+      <span>Vista C · Pura Vida · no es el sitio real</span>
+      <span>
+        <a href="./index.html">Galería</a> ·
+        <a href="./a-clinica.html">A</a> ·
+        <a href="./b-noche.html">B</a> ·
+        <a class="on" href="./c-pura-vida.html">C</a> ·
+        <a href="/">Sitio actual</a>
+      </span>
+    </div>
+  </div>
+
+  <p class="top">Envío gratis a todo Costa Rica · ₡15.900</p>
+
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#producto"><img src="../images/logo.png" alt="">DeepClean</a>
+      <nav>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#como">Cómo se usa</a>
+        <a class="nav-cta" href="#pedido">Ordená acá</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="producto">
+      <div>
+        <span class="chip">Para toda la familia</span>
+        <h1>Cuidá los oídos en casa, con calma.</h1>
+        <p class="lede">Cámara HD en el celular, puntas suaves y un kit completo. Hecho para ticos que quieren verse bien por dentro, sin drama.</p>
+        <div class="price-card">
+          <span class="price">₡15.900</span>
+          <small>Envío gratis · llega en 3–5 días</small>
+        </div>
+        <div class="actions">
+          <a class="btn btn-coral" href="#pedido">Quiero el mío</a>
+          <a class="btn btn-teal" href="#beneficios">¿Qué incluye?</a>
+        </div>
+        <p class="contact">WhatsApp 7161-8029 · @deepclean_cr</p>
+      </div>
+      <div class="blob">
+        <img src="../images/product.png" alt="DeepClean">
+      </div>
+    </section>
+
+    <section id="beneficios">
+      <div class="why">
+        <img src="../images/product-detail.png" alt="Cámara en el celular">
+        <div>
+          <div class="sec" style="text-align:left;margin:0 0 1rem">
+            <span>Por qué la gente lo pide</span>
+            <h2>Se ve claro. Se siente suave.</h2>
+          </div>
+          <div class="item"><div class="ico">◎</div><div><h3>Cámara HD 1080p</h3><p>Mirá el oído en vivo y mandá fotos al doctor.</p></div></div>
+          <div class="item"><div class="ico">✧</div><div><h3>6 luces LED</h3><p>Iluminación ajustable, nunca a oscuras.</p></div></div>
+          <div class="item"><div class="ico">○</div><div><h3>Impermeable IP67</h3><p>Se lava rico después de usarlo.</p></div></div>
+          <div class="item"><div class="ico">♡</div><div><h3>Niños y adultos</h3><p>Puntas de silicona y tope de seguridad.</p></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section style="background:var(--sand)">
+    <div class="wrap">
+      <div class="sec"><span>Vecinos</span><h2>Lo que dicen por acá</h2></div>
+      <div class="t-grid">
+        <article><p>“Les encontré tapones de cera a mis hijos que ni sabíamos.”</p><p class="who">Ana María L. · San José</p></article>
+        <article><p>“Mi esposa y yo lo usamos cada semana. Facilísimo.”</p><p class="who">Carlos R. · Heredia</p></article>
+        <article><p>“Llegó en 3 días. Mi mamá ahora se revisa sola.”</p><p class="who">José M. · Alajuela</p></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section id="como">
+      <div class="sec"><span>Tan fácil</span><h2>Cuatro pasos y ya</h2></div>
+      <div class="steps">
+        <article><b>1</b><h3>App</h3><p>WiFi Otoscope, gratis en el celular.</p></article>
+        <article><b>2</b><h3>Conectá</h3><p>El WiFi del DeepClean se enlaza solito.</p></article>
+        <article><b>3</b><h3>Punta</h3><p>Hay 6 tamaños para toda la casa.</p></article>
+        <article><b>4</b><h3>Mirá</h3><p>Imagen en vivo. Fotos si ocupás.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec"><span>La caja</span><h2>Todo esto viene incluido</h2></div>
+      <ul class="kit">
+        <li>DeepClean HD<small>blanco o negro</small></li>
+        <li>6 puntas de silicona<small>niños y adultos</small></li>
+        <li>Cepillo + pinza<small>limpieza y precisión</small></li>
+        <li>Estuche + USB-C<small>viajes y carga</small></li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="ship">
+        <article><h3>Todo Costa Rica</h3><p>Las 7 provincias.</p></article>
+        <article class="hi"><h3>Envío gratis</h3><p>Sin sorpresas en el total.</p></article>
+        <article><h3>Te avisamos</h3><p>WhatsApp con el tracking.</p></article>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="sec"><span>Tranquilo</span><h2>Preguntas de siempre</h2></div>
+      <div style="max-width:700px;margin:0 auto">
+        <details><summary>¿Es seguro en casa?</summary><p>Sí: silicona suave y tope de seguridad. Sin forzar.</p></details>
+        <details><summary>¿Sirve en iPhone y Android?</summary><p>Sí. App gratuita WiFi Otoscope, red 2.4 GHz.</p></details>
+        <details><summary>¿Y la batería?</summary><p>1–2 horas. Se carga por USB-C en menos de una hora.</p></details>
+        <details><summary>¿Cuánto tarda el envío?</summary><p>Gratis, 3–5 días hábiles a todo el país.</p></details>
+      </div>
+    </section>
+
+    <section id="pedido">
+      <div class="sec"><span>Pedido</span><h2>Dale, ordená el tuyo</h2><p>Vista de estilo · este form no cobra</p></div>
+      <div class="order">
+        <aside>
+          <img src="../images/product.png" alt="" style="max-height:150px;margin:0 auto 1rem;background:#fff;border-radius:20px">
+          <h3 style="font-family:Fraunces,serif;font-size:1.6rem;margin-bottom:0.6rem">Tu pedido</h3>
+          <div class="sum-line"><span>DeepClean HD</span><span>₡15.900</span></div>
+          <div class="sum-line"><span>Envío</span><span>Gratis</span></div>
+          <div class="sum-total"><span>Total</span><span>₡15.900</span></div>
+          <p style="margin-top:0.8rem;font-size:0.85rem">WhatsApp 7161-8029</p>
+        </aside>
+        <form onsubmit="return false">
+          <label>Nombre completo</label><input disabled placeholder="Tu nombre">
+          <div class="row">
+            <div><label>Teléfono</label><input disabled placeholder="8888-8888"></div>
+            <div><label>Email</label><input disabled placeholder="tucorreo@email.com"></div>
+          </div>
+          <label>Provincia</label><select disabled><option>San José</option></select>
+          <label>Dirección</label><textarea rows="2" disabled placeholder="¿Dónde te lo llevamos?"></textarea>
+          <button class="submit" type="button">Confirmar · ₡15.900</button>
+          <p class="fine">Solo una maqueta. El sitio real no cambió.</p>
+        </form>
+      </div>
+    </section>
+
+    <footer class="site">
+      <span>© 2026 DeepClean Costa Rica</span>
+      <span>@deepclean_cr</span>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A · Clínica — DeepClean</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --paper-2: #ebe6dc;
+      --ink: #1c2118;
+      --mute: #5e6656;
+      --sage: #5c7a4c;
+      --sage-deep: #3d5232;
+      --mist: #e4eadb;
+      --line: #d7d2c6;
+      --white: #fbfaf7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Outfit, system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    img { max-width: 100%; display: block; }
+    .preview-bar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--ink); color: var(--paper);
+      font-size: 0.8rem; letter-spacing: 0.04em;
+    }
+    .preview-bar .inner {
+      max-width: 1120px; margin: 0 auto; padding: 0.55rem 1.25rem;
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .preview-bar a { color: #c9d6bc; text-decoration: none; }
+    .preview-bar a.on { color: #fff; font-weight: 600; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 0 0.4rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
+    .brand img { width: 36px; height: 36px; border-radius: 50%; }
+    .brand b { font-weight: 600; letter-spacing: -0.02em; }
+    nav { display: flex; gap: 1.4rem; font-size: 0.9rem; color: var(--mute); }
+    nav a { text-decoration: none; }
+    nav .order { color: var(--sage-deep); font-weight: 600; }
+
+    .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 3rem; align-items: center; padding: 2.5rem 0 4rem; }
+    .kicker {
+      font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--sage); font-weight: 600; margin-bottom: 0.9rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2.4rem, 5vw, 4.1rem);
+      font-weight: 400; line-height: 1.05; letter-spacing: -0.03em;
+    }
+    .lede { margin: 1.1rem 0 1.6rem; color: var(--mute); font-size: 1.08rem; max-width: 34rem; font-weight: 300; }
+    .price-row { display: flex; align-items: baseline; gap: 0.85rem; margin-bottom: 0.4rem; }
+    .price { font-family: "Instrument Serif", serif; font-size: 3rem; }
+    .ship { font-size: 0.85rem; color: var(--sage-deep); font-weight: 600; }
+    .actions { display: flex; gap: 0.75rem; margin: 1.4rem 0 1.6rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.9rem 1.4rem; border-radius: 2px; text-decoration: none;
+      font-weight: 600; font-size: 0.92rem; letter-spacing: 0.02em;
+    }
+    .btn-fill { background: var(--sage-deep); color: #f7f4ee; }
+    .btn-ghost { border: 1px solid var(--ink); }
+    .checks { list-style: none; color: var(--mute); font-size: 0.95rem; }
+    .checks li { padding: 0.28rem 0 0.28rem 1.2rem; position: relative; }
+    .checks li::before { content: ""; position: absolute; left: 0; top: 0.7rem; width: 8px; height: 1px; background: var(--sage); }
+    .hero-visual {
+      background: var(--mist); border-radius: 999px 999px 24px 24px;
+      padding: 2rem 1.5rem 1.2rem; position: relative;
+    }
+    .hero-visual img { margin: 0 auto; max-height: 420px; object-fit: contain; }
+    .cap { text-align: center; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage-deep); margin-top: 0.6rem; }
+
+    section { padding: 4rem 0; }
+    .rule { border: 0; border-top: 1px solid var(--line); }
+    .sec-kicker { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sage); font-weight: 600; }
+    h2 { font-family: "Instrument Serif", serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 400; margin: 0.35rem 0 0.6rem; }
+    .center { text-align: center; max-width: 36rem; margin: 0 auto 2.4rem; color: var(--mute); }
+
+    .split { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 3rem; align-items: center; }
+    .split img { border-radius: 8px; background: var(--white); }
+    .benefit { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0.6rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+    .benefit:last-child { border-bottom: 0; }
+    .num { font-family: "Instrument Serif", serif; font-size: 1.6rem; color: var(--sage); }
+    .benefit h3 { font-size: 1rem; font-weight: 600; }
+    .benefit p { color: var(--mute); font-size: 0.92rem; }
+
+    .quotes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    .quote { background: var(--white); padding: 1.4rem; border: 1px solid var(--line); }
+    .quote p { font-family: "Instrument Serif", serif; font-size: 1.15rem; font-style: italic; line-height: 1.45; }
+    .who { margin-top: 1rem; font-size: 0.82rem; color: var(--mute); letter-spacing: 0.04em; }
+
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    .step h3 { font-size: 1rem; margin: 0.4rem 0 0.25rem; }
+    .step p { color: var(--mute); font-size: 0.9rem; }
+    .n { font-family: "Instrument Serif", serif; font-size: 2rem; color: var(--sage); }
+
+    .kit { max-width: 640px; margin: 0 auto; }
+    .kit li {
+      list-style: none; display: flex; justify-content: space-between; gap: 1rem;
+      padding: 0.85rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem;
+    }
+    .kit span { color: var(--mute); }
+
+    .ship-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .ship-row article { background: var(--paper); padding: 1.5rem; }
+    .ship-row article.hi { background: var(--sage-deep); color: var(--paper); }
+    .ship-row p { color: var(--mute); font-size: 0.9rem; margin-top: 0.35rem; }
+    .ship-row .hi p { color: #dce6d2; }
+
+    details { border-bottom: 1px solid var(--line); padding: 0.9rem 0; }
+    summary { cursor: pointer; font-weight: 500; list-style: none; display: flex; justify-content: space-between; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--sage); }
+    details[open] summary::after { content: "–"; }
+    details p { color: var(--mute); margin-top: 0.6rem; font-size: 0.95rem; max-width: 40rem; }
+
+    .order { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; }
+    .summary, form { background: var(--white); border: 1px solid var(--line); padding: 1.4rem; }
+    label { display: block; font-size: 0.8rem; margin: 0.7rem 0 0.25rem; font-weight: 500; }
+    input, select, textarea {
+      width: 100%; padding: 0.7rem 0.75rem; border: 1px solid var(--line);
+      background: var(--paper); font: inherit; border-radius: 2px;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .submit { width: 100%; margin-top: 1rem; background: var(--sage-deep); color: #fff; border: 0; padding: 0.95rem; font: inherit; font-weight: 600; cursor: default; }
+    .fine { font-size: 0.78rem; color: var(--mute); margin-top: 0.6rem; text-align: center; }
+    .sum-line { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .sum-total { display: flex; justify-content: space-between; padding-top: 0.8rem; font-size: 1.15rem; }
+
+    footer.site { padding: 2.5rem 0; color: var(--mute); font-size: 0.85rem; display: flex; justify-content: space-between; }
+    @media (max-width: 860px) {
+      nav { display: none; }
+      .hero, .split, .quotes, .steps, .ship-row, .order, .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-bar">
+    <div class="inner">
+      <span>Vista A · Clínica · no es el sitio real</span>
+      <span>
+        <a href="./index.html">Galería</a> ·
+        <a class="on" href="./a-clinica.html">A</a> ·
+        <a href="./b-noche.html">B</a> ·
+        <a href="./c-pura-vida.html">C</a> ·
+        <a href="/">Sitio actual</a>
+      </span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#producto">
+        <img src="../images/logo.png" alt="">
+        <b>DeepClean</b>
+      </a>
+      <nav>
+        <a href="#beneficios">Producto</a>
+        <a href="#como">Uso</a>
+        <a href="#faq">Preguntas</a>
+        <a class="order" href="#pedido">Pedir</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="producto">
+      <div>
+        <p class="kicker">Otoscopeo WiFi · Costa Rica</p>
+        <h1>Ver el oído<br>con claridad<br>de clínica.</h1>
+        <p class="lede">Cámara HD 1080p en el celular, puntas de silicona suave y envío gratis a todo el país. Un instrumento de casa que se siente preciso.</p>
+        <div class="price-row">
+          <span class="price">₡15.900</span>
+          <span class="ship">Envío incluido</span>
+        </div>
+        <div class="actions">
+          <a class="btn btn-fill" href="#pedido">Pedir DeepClean</a>
+          <a class="btn btn-ghost" href="#beneficios">Ver el detalle</a>
+        </div>
+        <ul class="checks">
+          <li>Imagen en tiempo real vía WiFi 2.4 GHz</li>
+          <li>6 luces LED · IP67 · iOS y Android</li>
+          <li>8 accesorios incluidos, seguro para la familia</li>
+        </ul>
+      </div>
+      <div class="hero-visual">
+        <img src="../images/product.png" alt="DeepClean blanco y negro">
+        <p class="cap">Blanco o negro · punta de silicona</p>
+      </div>
+    </section>
+  </div>
+
+  <hr class="rule">
+
+  <div class="wrap">
+    <section id="beneficios">
+      <div class="split">
+        <img src="../images/product-detail.png" alt="Vista HD en el celular">
+        <div>
+          <p class="sec-kicker">Por qué se siente distinto</p>
+          <h2>Inspección precisa, sin ir a consulta.</h2>
+          <p class="lede" style="margin-top:0">DeepClean se enlaza al celular y muestra el canal auditivo en 1080p. Identificá cera, cuidá a la familia y compartí fotos con tu médico.</p>
+          <div class="benefit"><span class="num">01</span><div><h3>Cámara HD 1080p</h3><p>Imagen nítida por WiFi. Grabá fotos y video.</p></div></div>
+          <div class="benefit"><span class="num">02</span><div><h3>6 luces LED</h3><p>Iluminación ajustable para ver con claridad.</p></div></div>
+          <div class="benefit"><span class="num">03</span><div><h3>IP67</h3><p>Sellado, fácil de limpiar después de cada uso.</p></div></div>
+          <div class="benefit"><span class="num">04</span><div><h3>Seguro en casa</h3><p>Puntas de grado médico y tope de seguridad.</p></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section style="background:var(--mist)">
+    <div class="wrap">
+      <div class="center">
+        <p class="sec-kicker">Voces</p>
+        <h2>Lo que cuentan en Costa Rica</h2>
+      </div>
+      <div class="quotes">
+        <article class="quote"><p>“Increíble poder ver dentro del oído de mis hijos. La cámara se ve súper clara.”</p><p class="who">Ana María L. · San José</p></article>
+        <article class="quote"><p>“Se conecta al WiFi del celular al toque. Los accesorios son de buena calidad.”</p><p class="who">Carlos R. · Heredia</p></article>
+        <article class="quote"><p>“Lo uso en casa con pacientes. Se pueden tomar fotos y enviárselas al doctor.”</p><p class="who">Laura V. · Cartago</p></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section id="como">
+      <div class="center">
+        <p class="sec-kicker">Cuatro pasos</p>
+        <h2>Usarlo es silencioso y simple.</h2>
+      </div>
+      <div class="steps">
+        <article class="step"><div class="n">1</div><h3>App</h3><p>Descargá WiFi Otoscope en iOS o Android.</p></article>
+        <article class="step"><div class="n">2</div><h3>WiFi</h3><p>El celular se enlaza a la red del DeepClean.</p></article>
+        <article class="step"><div class="n">3</div><h3>Punta</h3><p>Elegí el tamaño de silicona para cada persona.</p></article>
+        <article class="step"><div class="n">4</div><h3>HD</h3><p>Observá en tiempo real. Grabá si hace falta.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="center">
+        <p class="sec-kicker">Kit</p>
+        <h2>Todo lo que llega en la caja</h2>
+      </div>
+      <ul class="kit">
+        <li>DeepClean HD 1080p<span>blanco o negro</span></li>
+        <li>6 puntas de silicona<span>niños y adultos</span></li>
+        <li>Cepillo de limpieza<span>lente y puntas</span></li>
+        <li>Pinza de precisión<span>residuos visibles</span></li>
+        <li>Estuche protector<span>para viajes</span></li>
+        <li>Cable USB-C<span>carga rápida</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="wrap" style="padding-bottom:4rem">
+    <div class="ship-row">
+      <article><h3>Todo el país</h3><p>3–5 días hábiles a las 7 provincias.</p></article>
+      <article class="hi"><h3>Envío gratis</h3><p>Sin costo extra. Pura vida.</p></article>
+      <article><h3>Seguimiento</h3><p>WhatsApp y correo con el estado.</p></article>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section id="faq">
+      <div class="center">
+        <p class="sec-kicker">Dudas</p>
+        <h2>Preguntas frecuentes</h2>
+      </div>
+      <div style="max-width:720px;margin:0 auto">
+        <details><summary>¿Es seguro en casa?</summary><p>Puntas de silicona suave y tope de seguridad. Nunca fuerces la entrada.</p></details>
+        <details><summary>¿Funciona con mi celular?</summary><p>iPhone y Android. App gratuita WiFi Otoscope. WiFi 2.4 GHz, no Bluetooth.</p></details>
+        <details><summary>¿Cuánto dura la batería?</summary><p>1–2 horas de uso continuo. Carga USB-C en menos de una hora.</p></details>
+        <details><summary>¿Cuánto tarda el envío?</summary><p>Gratis a Costa Rica. Normalmente 3–5 días hábiles.</p></details>
+      </div>
+    </section>
+
+    <section id="pedido">
+      <div class="center">
+        <p class="sec-kicker">Pedido</p>
+        <h2>Pedir tu DeepClean</h2>
+      </div>
+      <div class="order">
+        <aside class="summary">
+          <img src="../images/product.png" alt="" style="max-height:180px;margin:0 auto 1rem">
+          <h3 style="font-family:'Instrument Serif',serif;font-size:1.5rem;font-weight:400;margin-bottom:0.8rem">Resumen</h3>
+          <div class="sum-line"><span>DeepClean HD</span><span>₡15.900</span></div>
+          <div class="sum-line"><span>Envío</span><span>Gratis</span></div>
+          <div class="sum-total"><span>Total</span><span>₡15.900</span></div>
+        </aside>
+        <form onsubmit="return false">
+          <label>Nombre completo</label>
+          <input placeholder="Tu nombre" disabled>
+          <div class="row">
+            <div><label>Teléfono</label><input placeholder="8888-8888" disabled></div>
+            <div><label>Email</label><input placeholder="tucorreo@email.com" disabled></div>
+          </div>
+          <label>Provincia</label>
+          <select disabled><option>San José</option></select>
+          <label>Dirección</label>
+          <textarea rows="2" disabled placeholder="Dirección de envío"></textarea>
+          <button class="submit" type="button">Confirmar pedido · ₡15.900</button>
+          <p class="fine">Vista de estilo. Este formulario no procesa pagos.</p>
+        </form>
+      </div>
+    </section>
+
+    <footer class="site">
+      <span>© 2026 DeepClean</span>
+      <span>WhatsApp 7161-8029 · @deepclean_cr</span>
+    </footer>
+  </div>
+</body>
+</html>
